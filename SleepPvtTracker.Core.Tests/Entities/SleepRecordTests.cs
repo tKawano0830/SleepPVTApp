@@ -48,7 +48,7 @@ public class SleepRecordTests
     }
 
     [Fact]
-    public void UpdateComments_100文字以内の場合_正しいプロパティがセットされていること()
+    public void UpdateComments_正常な値を渡した場合_正しいプロパティがセットされていること()
     {
         var record = CreateValidRecord();
         var validComments = new string('a', 100);
@@ -58,15 +58,15 @@ public class SleepRecordTests
         record.Comments.Should().Be(validComments);
     }
 
-    [Fact]
-    public void UpdateComments_100文字を超える場合_例外をスローすること()
-    {
-        var invalidComments = new string('a', 101);
+    //ユースケース層に移動させたので、エンティティのルールから削除
+    // public void UpdateComments_100文字を超える場合_例外をスローすること()
+    // {
+    //     var invalidComments = new string('a', 101);
 
-        Action act = () => CreateValidRecord().UpdateComments(invalidComments);
+    //     Action act = () => CreateValidRecord().UpdateComments(invalidComments);
 
-        act.Should().Throw<ArgumentException>().WithMessage("*コメント*");
-    }
+    //     act.Should().Throw<ArgumentException>().WithMessage("*コメント*");
+    // }
 
     [Fact]
     public void RecordPvt_開始時間が起床後90分以内の場合_例外をスローすること()

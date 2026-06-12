@@ -17,6 +17,16 @@ public class SleepRecordRepository(AppDbContext context) : ISleepRecordRepositor
         await _context.SleepRecords.AddAsync(record);
         await _context.SaveChangesAsync();
     }
+    public async Task UpdateAsync(SleepRecord record)
+    {
+        _context.SleepRecords.Update(record);
+        await _context.SaveChangesAsync();
+    }
+    public async Task DeleteAsync(SleepRecord record)
+    {
+        _context.SleepRecords.Remove(record);
+        await _context.SaveChangesAsync();
+    }
 
     public async Task<SleepRecord?> GetByIdAsync(Guid id)
     {

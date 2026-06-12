@@ -46,7 +46,8 @@ public class SleepRecord
     public void UpdateComments(string comments)
     {
         //コメントの文字数は100文字以内にする
-        if (comments?.Length > 100) throw new ArgumentException("コメントは100文字以内で入力してください", nameof(comments));
+        //memo:これはユースケースに該当すると判断して、サービスクラスへ移行させることにした
+        // if (comments?.Length > 100) throw new ArgumentException("コメントは100文字以内で入力してください", nameof(comments));
 
         Comments = comments ?? string.Empty;
     }

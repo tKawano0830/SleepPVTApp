@@ -44,6 +44,8 @@ DB:SQLite、Entity Framework Core
 ・Voは値比較のためrecordで実装する
 ・Factoryパターンでラップする
 ・外部dllに公開しないものはinternalアクセス修飾子を使う
+・DtoはWeb層ではなくCore層に作る
+→厳密なクリーンアーキテクチャ的には誤りだが実装の都合上妥協する
 
 [コメント方針]
 ・わざわざ全プロパティにSammaryを付与する必要なし(時間がない)

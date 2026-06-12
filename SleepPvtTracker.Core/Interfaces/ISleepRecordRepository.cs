@@ -17,6 +17,18 @@ public interface ISleepRecordRepository
     /// <returns></returns>
     Task AddAsync(SleepRecord record);
     /// <summary>
+    /// 更新
+    /// </summary>
+    /// <param name="record"></param>
+    /// <returns></returns>
+    Task UpdateAsync(SleepRecord record);
+    /// <summary>
+    /// 削除
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task DeleteAsync(SleepRecord record);
+    /// <summary>
     /// IDで1件取得
     /// </summary>
     /// <param name="id"></param>
@@ -27,4 +39,5 @@ public interface ISleepRecordRepository
     /// </summary>
     /// <returns></returns>
     Task<IReadOnlyList<SleepRecord>> GetAllAsync();
+
 }
