@@ -19,28 +19,34 @@ public record PvtResult
     public DateTime EndTime { get; }
     //memo:不変性を担保するためにIReadOnlyList型を採用
     //☆PvtTrialsの値比較は未実装のため、業務ロジックで必要になった時に実装すること
-    public IReadOnlyList<PvtTrial> PvtTrials { get; }
+    public IReadOnlyList<PvtTrial> Trials { get; }
     public int ExtraFalseStarts { get; }
 
-    private PvtResult(DateTime startTime, DateTime endTime, List<PvtTrial> pvtTrials, int extraFalseStarts)
+    //EFCore用の空コンストラクタ
+    private PvtResult()
+    {
+        Trials = new List<PvtTrial>();
+    }
+
+    private PvtResult(DateTime startTime, DateTime endTime, List<PvtTrial> trials, int extraFalseStarts)
     {
         StartTime = startTime;
         EndTime = endTime;
-        PvtTrials = pvtTrials;
+        Trials = trials;
         ExtraFalseStarts = extraFalseStarts;
     }
 
     //memo:プリミティブ型を全てVoにするメリットが現状では少ないため、一旦ファクトリパターンでバリデーションを実装する
     //☆将来的に全部Voにしたい
-    public static PvtResult Create(DateTime startTime, DateTime endTime, List<PvtTrial> pvtTrials, int extraFalseStarts)
+    public static PvtResult Create(DateTime startTime, DateTime endTime, List<PvtTrial> trials, int extraFalseStarts)
     {
         //memo:null非許容のためプリミティブ型はnullチェックを行わない
-        ArgumentNullException.ThrowIfNull(pvtTrials);
+        ArgumentNullException.ThrowIfNull(trials);
 
         if (endTime < startTime) throw new ArgumentException("終了時間は開始時間よりも未来である必要があります", nameof(endTime));
         if (extraFalseStarts < 0) throw new ArgumentException("無効クリック数は0以上である必要があります", nameof(extraFalseStarts));
 
-        return new PvtResult(startTime, endTime, pvtTrials, extraFalseStarts);
+        return new PvtResult(startTime, endTime, trials, extraFalseStarts);
     }
 
     //以下、ビジネスルール
@@ -51,7 +57,7 @@ public record PvtResult
     /// </summary>
     public int GetTotalLapse()
     {
-        return PvtTrials.Count(p => p.IsLapse);
+        return Trials.Count(p => p.IsLapse);
     }
 
     /// <summary>
@@ -59,7 +65,7 @@ public record PvtResult
     /// </summary>
     public int GetTotalFalseStarts()
     {
-        var trialFalseStarts = PvtTrials.Count(p => p.IsFalseStart);
+        var trialFalseStarts = Trials.Count(p => p.IsFalseStart);
         return trialFalseStarts + ExtraFalseStarts;
     }
 
@@ -68,7 +74,7 @@ public record PvtResult
     /// </summary>
     public double GetAverageReactionTime()
     {
-        var validTrials = PvtTrials.Where(p => !p.IsFalseStart && !p.IsLapse).ToList();
+        var validTrials = Trials.Where(p => !p.IsFalseStart && !p.IsLapse).ToList();
         if (validTrials.Count == 0) return 0;
         return validTrials.Average(p => p.ReactionTime);
     }

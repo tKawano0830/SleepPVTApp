@@ -1,7 +1,16 @@
+using Microsoft.EntityFrameworkCore;
+using SleepPvtTracker.Core.Interfaces;
+using SleepPvtTracker.Infrastructure.Data;
+using SleepPvtTracker.Infrastructure.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<ISleepRecordRepository, SleepRecordRepository>();
 
 var app = builder.Build();
 

@@ -23,7 +23,7 @@ public class PvtResultTests
         result.StartTime.Should().Be(startTime);
         result.EndTime.Should().Be(endTime);
         //オブジェクトの同等比較
-        result.PvtTrials.Should().BeEquivalentTo(pvtTrials);
+        result.Trials.Should().BeEquivalentTo(pvtTrials);
         result.ExtraFalseStarts.Should().Be(extraFalseStarts);
     }
 
