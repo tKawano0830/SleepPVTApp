@@ -1,0 +1,35 @@
+@model SleepPvtTracker.Core.DTOs.CreateSleepRecordDto
+@{
+    ViewData["Title"] = "新しい記録";
+}
+
+<h1>新しい記録をつける</h1>
+
+<div style="color: red;">
+    @Html.ValidationSummary(true)
+</div>
+
+<form asp-action="Create" method="post">
+    <p>
+        <label>就寝時間:</label><br />
+        <input asp-for="Bedtime" type="datetime-local" required />
+    </p>
+
+    <p>
+        <label>起床時間:</label><br />
+        <input asp-for="WakeUpTime" type="datetime-local" required />
+    </p>
+
+    <p>
+        <label>起きた時の眠気 (1〜9):</label><br />
+        <input asp-for="SleepinessLevel" type="number" min="1" max="9" required />
+    </p>
+
+    <p>
+        <label>メモ（100文字まで）:</label><br />
+        <input asp-for="Comments" type="text" maxlength="100" />
+    </p>
+
+    <button type="submit">保存する</button>
+    <a asp-action="Index">戻る</a>
+</form>

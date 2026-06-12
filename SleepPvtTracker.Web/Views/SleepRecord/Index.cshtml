@@ -1,0 +1,47 @@
+@model IEnumerable<SleepPvtTracker.Web.Models.SleepRecordListViewModel>
+@{
+    ViewData["Title"] = "睡眠記録一覧";
+}
+
+<h1>睡眠記録一覧</h1>
+
+<p>
+    <a asp-action="Create">新しい記録をつける</a>
+</p>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>対象日</th>
+            <th>就寝</th>
+            <th>起床</th>
+            <th>時間</th>
+            <th>眠気</th>
+            <th>メモ</th>
+            <th>PVT状態</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (SleepRecordListViewModel item in Model)
+        {
+            <tr>
+                <td>@item.TargetDate</td>
+                <td>@item.Bedtime</td>
+                <td>@item.WakeUpTime</td>
+                <td>@item.Duration</td>
+                <td>@item.SleepinessLevel</td>
+                <td>@item.Comments</td>
+                <td>
+                    @if (item.HasPvt)
+                    {
+                        <span>実施済 (Lapse: @item.PvtLapseCount)</span>
+                    }
+                    else
+                    {
+                        <a asp-action="PvtTest" asp-route-id="@item.Id">PVTテストを行う</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

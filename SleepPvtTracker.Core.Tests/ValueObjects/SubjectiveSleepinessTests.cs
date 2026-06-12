@@ -1,5 +1,6 @@
 using System;
 using FluentAssertions;
+using SleepPvtTracker.Core.Exceptions;
 using SleepPvtTracker.Core.ValueObjects;
 using Xunit;
 
@@ -27,6 +28,6 @@ public class SubjectiveSleepinessTests
     {
         Action act = () => SubjectiveSleepiness.Create(invalidLevel);
 
-        act.Should().Throw<ArgumentException>().WithMessage("*眠気レベル*");
+        act.Should().Throw<DomainException>().WithMessage("*眠気レベル*");
     }
 }

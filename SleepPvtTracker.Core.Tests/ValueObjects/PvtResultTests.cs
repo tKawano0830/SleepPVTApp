@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
+using SleepPvtTracker.Core.Exceptions;
 using SleepPvtTracker.Core.ValueObjects;
 using Xunit;
 
@@ -42,7 +43,7 @@ public class PvtResultTests
         var pvtTrials = new List<PvtTrial>();
 
         Action act = () => PvtResult.Create(startTime, endTime, pvtTrials, 0);
-        act.Should().Throw<ArgumentException>().WithMessage("*終了時間*");
+        act.Should().Throw<DomainException>().WithMessage("*終了時間*");
     }
 
     [Fact]

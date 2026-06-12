@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SleepPvtTracker.Core.Interfaces;
+using SleepPvtTracker.Core.Services;
 using SleepPvtTracker.Infrastructure.Data;
 using SleepPvtTracker.Infrastructure.Repositories;
 
@@ -8,9 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=sleeppvttracker.db"));
 
 builder.Services.AddScoped<ISleepRecordRepository, SleepRecordRepository>();
+builder.Services.AddScoped<ISleepRecordService, SleepRecordService>();
 
 var app = builder.Build();
 
@@ -31,8 +33,13 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=SleepRecord}/{action=Index}/{id?}");
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.EnsureCreated();
+}
 
 
 app.Run();

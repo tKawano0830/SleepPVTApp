@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using SleepPvtTracker.Core.DTOs;
+using SleepPvtTracker.Core.Entities;
 
 namespace SleepPvtTracker.Core.Services;
 
@@ -29,4 +30,11 @@ public interface ISleepRecordService
     /// <param name="dto"></param>
     /// <returns></returns>
     Task SubmitPvtAsync(SubmitPvtDto dto);
+
+    /// <summary>
+    /// DBから全ての睡眠記録を取得する
+    /// </summary>
+    /// <returns></returns>
+    Task<IReadOnlyList<SleepRecord>> GetAllSleepRecordsAsync();
+    //memo:即時実行のコレクションを返す(Controller側でDB操作させないため)
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using FluentAssertions;
 using SleepPvtTracker.Core.Entities;
+using SleepPvtTracker.Core.Exceptions;
 using SleepPvtTracker.Core.ValueObjects;
 using Xunit;
 
@@ -33,7 +34,7 @@ public class SleepRecordTests
 
         Action act = () => SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness);
 
-        act.Should().Throw<ArgumentException>().WithMessage("*起床時間*");
+        act.Should().Throw<DomainException>().WithMessage("*起床時間*");
     }
 
     [Fact]
@@ -44,7 +45,7 @@ public class SleepRecordTests
 
         Action act = () => SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness);
 
-        act.Should().Throw<ArgumentException>().WithMessage("*睡眠時間*");
+        act.Should().Throw<DomainException>().WithMessage("*睡眠時間*");
     }
 
     [Fact]
@@ -58,15 +59,15 @@ public class SleepRecordTests
         record.Comments.Should().Be(validComments);
     }
 
-    //ユースケース層に移動させたので、エンティティのルールから削除
-    // public void UpdateComments_100文字を超える場合_例外をスローすること()
-    // {
-    //     var invalidComments = new string('a', 101);
+    [Fact]
+    public void UpdateComments_100文字を超える場合_例外をスローすること()
+    {
+        var invalidComments = new string('a', 101);
 
-    //     Action act = () => CreateValidRecord().UpdateComments(invalidComments);
+        Action act = () => CreateValidRecord().UpdateComments(invalidComments);
 
-    //     act.Should().Throw<ArgumentException>().WithMessage("*コメント*");
-    // }
+        act.Should().Throw<DomainException>().WithMessage("*コメント*");
+    }
 
     [Fact]
     public void RecordPvt_開始時間が起床後90分以内の場合_例外をスローすること()
@@ -95,7 +96,7 @@ public class SleepRecordTests
 
         Action act = () => record.RecordPvt(pvtResult);
 
-        act.Should().Throw<InvalidOperationException>();
+        act.Should().Throw<DomainException>();
     }
 
     private static SleepRecord CreateValidRecord()

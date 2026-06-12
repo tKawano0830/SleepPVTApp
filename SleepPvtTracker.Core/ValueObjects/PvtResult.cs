@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SleepPvtTracker.Core.Exceptions;
 
 namespace SleepPvtTracker.Core.ValueObjects;
 
@@ -43,8 +44,8 @@ public record PvtResult
         //memo:null非許容のためプリミティブ型はnullチェックを行わない
         ArgumentNullException.ThrowIfNull(trials);
 
-        if (endTime < startTime) throw new ArgumentException("終了時間は開始時間よりも未来である必要があります", nameof(endTime));
-        if (extraFalseStarts < 0) throw new ArgumentException("無効クリック数は0以上である必要があります", nameof(extraFalseStarts));
+        if (endTime < startTime) throw new DomainException("終了時間は開始時間よりも未来である必要があります");
+        if (extraFalseStarts < 0) throw new DomainException("無効クリック数は0以上である必要があります");
 
         return new PvtResult(startTime, endTime, trials, extraFalseStarts);
     }

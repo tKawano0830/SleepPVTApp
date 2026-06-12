@@ -1,4 +1,5 @@
 using System;
+using SleepPvtTracker.Core.Exceptions;
 
 namespace SleepPvtTracker.Core.ValueObjects;
 
@@ -18,7 +19,7 @@ public record SubjectiveSleepiness
     public static SubjectiveSleepiness Create(int level)
     {
         //カロリンスカ眠気尺度(KSS)を採用
-        if (level < 1 || level > 9) throw new ArgumentOutOfRangeException("眠気レベルは1から9の範囲で指定してください", nameof(level));
+        if (level < 1 || level > 9) throw new DomainException("眠気レベルは1から9の範囲で指定してください");
 
         return new SubjectiveSleepiness(level);
     }
