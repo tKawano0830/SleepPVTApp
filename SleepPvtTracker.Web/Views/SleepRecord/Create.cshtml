@@ -3,33 +3,49 @@
     ViewData["Title"] = "新しい記録";
 }
 
-<h1>新しい記録をつける</h1>
+<div class="container mt-4">
+    <h2>新しい記録をつける</h2>
+    <hr />
 
-<div style="color: red;">
-    @Html.ValidationSummary(true)
+    <div class="row">
+        <div class="col-md-6">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    @Html.ValidationSummary(true, "入力内容にエラーがあります。")
+                </div>
+            }
+
+            <form asp-action="Create" method="post">
+                <div class="mb-3">
+                    <label asp-for="Bedtime" class="form-label fw-bold">就寝時間</label>
+                    <input asp-for="Bedtime" type="datetime-local" class="form-control" required />
+                    <span asp-validation-for="Bedtime" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="WakeUpTime" class="form-label fw-bold">起床時間</label>
+                    <input asp-for="WakeUpTime" type="datetime-local" class="form-control" required />
+                    <span asp-validation-for="WakeUpTime" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SleepinessLevel" class="form-label fw-bold">起きた時の眠気 (1〜9)</label>
+                    <input asp-for="SleepinessLevel" type="number" min="1" max="9" class="form-control" required />
+                    <span asp-validation-for="SleepinessLevel" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Comments" class="form-label fw-bold">メモ（100文字まで）</label>
+                    <textarea asp-for="Comments" class="form-control" rows="2" maxlength="100"></textarea>
+                    <span asp-validation-for="Comments" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-success">保存する</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">一覧に戻る</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
-
-<form asp-action="Create" method="post">
-    <p>
-        <label>就寝時間:</label><br />
-        <input asp-for="Bedtime" type="datetime-local" required />
-    </p>
-
-    <p>
-        <label>起床時間:</label><br />
-        <input asp-for="WakeUpTime" type="datetime-local" required />
-    </p>
-
-    <p>
-        <label>起きた時の眠気 (1〜9):</label><br />
-        <input asp-for="SleepinessLevel" type="number" min="1" max="9" required />
-    </p>
-
-    <p>
-        <label>メモ（100文字まで）:</label><br />
-        <input asp-for="Comments" type="text" maxlength="100" />
-    </p>
-
-    <button type="submit">保存する</button>
-    <a asp-action="Index">戻る</a>
-</form>
