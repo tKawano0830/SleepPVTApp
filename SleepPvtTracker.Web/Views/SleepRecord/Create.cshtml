@@ -30,22 +30,23 @@
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="SleepinessLevel" class="form-label fw-bold">起きた時の眠気 (1〜9)</label>
-                    <input asp-for="SleepinessLevel" type="number" min="1" max="9" class="form-control" required />
-                    <span asp-validation-for="SleepinessLevel" class="text-danger small"></span>
-                </div>
+                    <label asp-for="SleepinessLevel" class="form-label fw-bold">起きた時の眠気
+                        (1:非常にはっきり目覚めている～9：とても眠い)</label>
+                        <input asp-for="SleepinessLevel" type="number" min="1" max="9" class="form-control" required />
+                        <span asp-validation-for="SleepinessLevel" class="text-danger small"></span>
+                    </div>
 
-                <div class="mb-3">
-                    <label asp-for="Comments" class="form-label fw-bold">メモ（100文字まで）</label>
-                    <textarea asp-for="Comments" class="form-control" rows="2" maxlength="100"></textarea>
-                    <span asp-validation-for="Comments" class="text-danger small"></span>
-                </div>
+                    <div class="mb-3">
+                        <label asp-for="Comments" class="form-label fw-bold">メモ（100文字まで）</label>
+                        <textarea asp-for="Comments" class="form-control" rows="2" maxlength="100"></textarea>
+                        <span asp-validation-for="Comments" class="text-danger small"></span>
+                    </div>
 
-                <div class="d-flex gap-2 mt-4">
-                    <button type="submit" class="btn btn-success">保存する</button>
-                    <a asp-action="Index" class="btn btn-outline-secondary">一覧に戻る</a>
-                </div>
-            </form>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-success">保存する</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">一覧に戻る</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
