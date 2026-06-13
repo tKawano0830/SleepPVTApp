@@ -15,10 +15,11 @@
             <th>対象日</th>
             <th>就寝</th>
             <th>起床</th>
-            <th>時間</th>
-            <th>眠気</th>
-            <th>メモ</th>
-            <th>PVT状態</th>
+            <th>睡眠時間</th>
+            <th>眠気レベル</th>
+            <th>備考</th>
+            <th>PVT</th>
+            <th>操作</th>
         </tr>
     </thead>
     <tbody>
@@ -34,12 +35,22 @@
                 <td>
                     @if (item.HasPvt)
                     {
-                        <span>実施済 (Lapse: @item.PvtLapseCount)</span>
+                        <span>実施済 (Score: @item.PvtScore 点)</span>
                     }
-                    else
+                    else if (item.IsPvtAvailable)
                     {
                         <a asp-action="PvtTest" asp-route-id="@item.Id">PVTテストを行う</a>
                     }
+                    else
+                    {
+                        <span class="text-muted" style="font-size: 0.9em;">(起床後90分経過のため実施不可)</span>
+                    }
+                </td>
+                <td>
+                    <form asp-action="Delete" asp-route-id="@item.Id" method="post"
+                          onsubmit="return confirm('本当に削除しますか？');">
+                        <button type="submit" class="btn btn-danger btn-sm">削除</button>
+                    </form>
                 </td>
             </tr>
         }

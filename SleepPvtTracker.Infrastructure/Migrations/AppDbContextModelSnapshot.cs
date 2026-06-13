@@ -82,25 +82,22 @@ namespace SleepPvtTracker.Infrastructure.Migrations
 
                             b1.OwnsMany("SleepPvtTracker.Core.ValueObjects.PvtTrial", "Trials", b2 =>
                                 {
-                                    b2.Property<Guid>("PvtResultSleepRecordId")
+                                    b2.Property<Guid>("SleepRecordId")
                                         .HasColumnType("TEXT");
 
-                                    b2.Property<int>("Id")
+                                    b2.Property<long>("ChangedAt")
                                         .ValueGeneratedOnAdd()
-                                        .HasColumnType("INTEGER");
-
-                                    b2.Property<long>("ChacngedAt")
                                         .HasColumnType("INTEGER");
 
                                     b2.Property<long>("ClickedAt")
                                         .HasColumnType("INTEGER");
 
-                                    b2.HasKey("PvtResultSleepRecordId", "Id");
+                                    b2.HasKey("SleepRecordId", "ChangedAt");
 
                                     b2.ToTable("SleepRecordPvtTrials", (string)null);
 
                                     b2.WithOwner()
-                                        .HasForeignKey("PvtResultSleepRecordId");
+                                        .HasForeignKey("SleepRecordId");
                                 });
 
                             b1.Navigation("Trials");

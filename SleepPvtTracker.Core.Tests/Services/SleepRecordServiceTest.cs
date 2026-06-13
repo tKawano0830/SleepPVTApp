@@ -28,6 +28,7 @@ public class SleepRecordServiceTests
     [Fact]
     public async Task CreateSleepRecordAsync_正しいDTOが渡された場合_AddAsyncが1回呼ばれること()
     {
+        var currentTime = new DateTime(2026, 6, 13, 8, 0, 0);
         var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
         var wakeUpTime = new DateTime(2026, 6, 13, 7, 0, 0);
         var dto = new CreateSleepRecordDto
@@ -38,7 +39,7 @@ public class SleepRecordServiceTests
             Comments = "テスト"
         };
 
-        await _service.CreateSleepRecordAsync(dto);
+        await _service.CreateSleepRecordAsync(dto, currentTime);
 
         _mockReoisitory.Verify(r => r.AddAsync(It.IsAny<SleepRecord>()), Times.Once);
     }
@@ -146,9 +147,10 @@ public class SleepRecordServiceTests
 
     private static SleepRecord CreateDummySleepRecord()
     {
+        var currentTime = new DateTime(2026, 6, 13, 8, 0, 0);
         var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
         var wakeUpTime = new DateTime(2026, 6, 13, 7, 0, 0);
 
-        return SleepRecord.Create(bedtime, wakeUpTime, SubjectiveSleepiness.Create(5));
+        return SleepRecord.Create(bedtime, wakeUpTime, SubjectiveSleepiness.Create(5), currentTime);
     }
 }

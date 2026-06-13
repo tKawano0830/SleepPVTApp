@@ -12,7 +12,8 @@ public class SleepRecordListViewModel
     public string Duration { get; set; } = string.Empty;
     public int SleepinessLevel { get; set; }
     public bool HasPvt { get; set; }
-    public int? PvtLapseCount { get; set; }
+    public bool IsPvtAvailable { get; set; }
+    public int? PvtScore { get; set; }
 
     public static SleepRecordListViewModel ConvertFromEntity(SleepRecord entity)
     {
@@ -26,7 +27,8 @@ public class SleepRecordListViewModel
             Duration = entity.Duration.ToString(@"hh\:mm"),
             SleepinessLevel = entity.Sleepiness.Level,
             HasPvt = entity.PvtResult != null,
-            PvtLapseCount = entity.PvtResult?.GetTotalLapse()
+            IsPvtAvailable = entity.IsPvtAvailable(DateTime.Now),
+            PvtScore = entity.PvtResult?.GetScore()
         };
     }
 }

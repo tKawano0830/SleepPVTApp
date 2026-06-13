@@ -35,17 +35,16 @@ namespace SleepPvtTracker.Infrastructure.Migrations
                 name: "SleepRecordPvtTrials",
                 columns: table => new
                 {
-                    PvtResultSleepRecordId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Id = table.Column<int>(type: "INTEGER", nullable: false),
-                    ChacngedAt = table.Column<long>(type: "INTEGER", nullable: false),
+                    ChangedAt = table.Column<long>(type: "INTEGER", nullable: false),
+                    SleepRecordId = table.Column<Guid>(type: "TEXT", nullable: false),
                     ClickedAt = table.Column<long>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SleepRecordPvtTrials", x => new { x.PvtResultSleepRecordId, x.Id });
+                    table.PrimaryKey("PK_SleepRecordPvtTrials", x => new { x.SleepRecordId, x.ChangedAt });
                     table.ForeignKey(
-                        name: "FK_SleepRecordPvtTrials_SleepRecords_PvtResultSleepRecordId",
-                        column: x => x.PvtResultSleepRecordId,
+                        name: "FK_SleepRecordPvtTrials_SleepRecords_SleepRecordId",
+                        column: x => x.SleepRecordId,
                         principalTable: "SleepRecords",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);

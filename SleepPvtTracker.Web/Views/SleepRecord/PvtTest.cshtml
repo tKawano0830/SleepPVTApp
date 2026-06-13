@@ -1,0 +1,239 @@
+@* Web/Views/SleepRecord/PvtTest.cshtml *@
+@Html.AntiForgeryToken()
+@model SleepPvtTracker.Web.Models.SubmitPvtViewModel
+
+<div class="container mt-4">
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <h5 class="card-title">残り時間</h5>
+                    <h2 id="timeDisplay">00:20</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <h5 class="card-title">直前の反応時間</h5>
+                    <h2 id="rtDisplay">--- ms</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <h5 class="card-title">フライング回数</h5>
+                    <h2 id="fsDisplay">0</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="targetArea" class="d-flex justify-content-center align-items-center rounded shadow"
+         style="height: 300px; background-color: #FFE0B2; cursor: pointer; transition: background-color 0.1s;">
+        <h3 id="targetText" class="text-muted">Startを押してください</h3>
+    </div>
+
+    <div class="mt-4 text-center">
+        <button id="btnStart" class="btn btn-primary btn-lg px-5">Start</button>
+        <button id="btnStop" class="btn btn-danger btn-lg px-5 ms-3" disabled>中断</button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const TOTAL_TIME_SEC = 20; //本来3分想定だがテスト用に20秒とする
+        const COLOR_BASE = '#FFE0B2'; //オレンジ
+        const COLOR_ACTIVE = '#B3E5FC'; //水色
+        const SLEEP_RECORD_ID = '@Model.SleepRecordId'; //Controllerから渡されたID
+
+        let isRunning = false;
+        let isTargetActive = false;
+        let remainingSec = TOTAL_TIME_SEC;
+        let startTimeObj = null;
+        let currentChangedAt = 0; //色が変わった時刻(ms)
+
+        let trials = [];
+        let extraFalseStarts = 0;
+
+        let countdownIntervalId = null;
+        let scheduleTimerId = null;
+        let timeoutTimerId = null;
+
+        //DOM
+        const elTime = document.getElementById('timeDisplay');
+        const elRt = document.getElementById('rtDisplay');
+        const elFs = document.getElementById('fsDisplay');
+        const elTarget = document.getElementById('targetArea');
+        const elText = document.getElementById('targetText');
+        const btnStart = document.getElementById('btnStart');
+        const btnStop = document.getElementById('btnStop');
+
+        //イベントリスナー
+        btnStart.addEventListener('click', startPvt);
+        btnStop.addEventListener('click', stopPvt);
+        elTarget.addEventListener('mousedown', handleTargetClick);
+
+        function startPvt() {
+            //初期化
+            isRunning = true;
+            isTargetActive = false;
+            remainingSec = TOTAL_TIME_SEC;
+            trials = [];
+            extraFalseStarts = 0;
+            startTimeObj = new Date();
+            updateUI();
+
+            //UI切り替え
+            btnStart.disabled = true;
+            btnStop.disabled = false;
+            elTarget.style.backgroundColor = COLOR_BASE;
+            elText.innerText = '色が変化した瞬間に画面をクリックしてください';
+            elText.className = "text-muted"
+
+            //カウントダウン開始
+            countdownIntervalId = setInterval(() => {
+                remainingSec--;
+                updateUI();
+                if (remainingSec <= 0) finishPvt();
+            }, 1000);
+
+            //開始2000msは変化させない
+            scheduleNextTarget(2000);
+        }
+
+        function stopPvt() {
+            clearAllTimers();
+            isRunning = false;
+            isTargetActive = false;
+            elTarget.style.backgroundColor = COLOR_BASE;
+            elText.innerText = '中断されました。Startでリセットします。';
+            btnStart.disabled = false;
+            btnStop.disabled = true;
+        }
+
+        function clearAllTimers() {
+            clearInterval(countdownIntervalId);
+            clearTimeout(scheduleTimerId);
+            clearTimeout(timeoutTimerId);
+        }
+
+        function updateUI() {
+            const m = String(Math.floor(remainingSec / 60)).padStart(2, '0');
+            const s = String(remainingSec % 60).padStart(2, '0');
+            elTime.innerText = `${m}:${s}`;
+            elFs.innerText = extraFalseStarts;
+        }
+
+        //ターゲット出現
+        function scheduleNextTarget(minDelayMs = 2000) {
+            if (!isRunning) return;
+
+            // 終了3秒前以降は変化させない
+            if (remainingSec <= 3) return;
+
+            // 次の出現までのランダムな時間
+            const delay = minDelayMs + Math.random() * 4000;
+
+            scheduleTimerId = setTimeout(() => {
+                activateTarget();
+            }, delay);
+        }
+
+        function activateTarget() {
+            if (!isRunning || remainingSec <= 3) return;
+
+            isTargetActive = true;
+            currentChangedAt = Date.now();
+            elTarget.style.backgroundColor = COLOR_ACTIVE;
+            elText.innerText = 'クリック！！';
+
+            //2000ms経過したらLapse(極端な遅延)と判定して強制的に次へ
+            timeoutTimerId = setTimeout(() => {
+                recordTrial(currentChangedAt, currentChangedAt + 2000);
+                resetTargetAndScheduleNext();
+            }, 2000);
+        }
+
+        //クリック処理
+        function handleTargetClick() {
+            if (!isRunning) return;
+
+            if (isTargetActive) {
+                //成功
+                const clickedAt = Date.now();
+                clearTimeout(timeoutTimerId);//遅延判定を解除
+
+                const rt = clickedAt - currentChangedAt;
+                elRt.innerText = `${rt} ms`; //直前の反応時間
+
+                recordTrial(currentChangedAt, clickedAt);
+                resetTargetAndScheduleNext();
+            } else {
+                //フライング（変化していないのに押した）
+                extraFalseStarts++;
+                updateUI();
+            }
+        }
+
+        function recordTrial(changed, clicked) {
+            trials.push({ ChangedAt: changed - startTimeObj, ClickedAt: clicked - startTimeObj });
+        }
+
+        function resetTargetAndScheduleNext() {
+            isTargetActive = false;
+            elTarget.style.backgroundColor = COLOR_BASE;
+            elText.innerText = '色が変化した瞬間に画面をクリックしてください';
+            scheduleNextTarget(2000); //最低2秒は待つ
+        }
+
+        //送信
+        async function finishPvt() {
+            clearAllTimers();
+            isRunning = false;
+            elTarget.style.backgroundColor = COLOR_BASE;
+            elText.innerText = '送信中...';
+
+            const payload = {
+                SleepRecordId: SLEEP_RECORD_ID,
+                StartTime: startTimeObj.toISOString(),
+                EndTime: new Date().toISOString(),
+                ExtraFalseStarts: extraFalseStarts,
+                Trials: trials
+            };
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            console.log("送信データ:", JSON.stringify(payload, null, 2));
+
+            try {
+                // C#のControllerへPOST
+                const res = await fetch('/SleepRecord/SubmitPvt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    //成功したら一覧画面等へリダイレクト
+                    window.location.href = `/SleepRecord/`;
+                } else {
+                    //サーバーからのエラーレスポンス(JSON)を読み取る
+                    const errorData = await res.json();
+                    console.error("サーバーからのエラー詳細:", errorData);
+
+                    //DomainExceptionの場合は errorData.message に入る
+                    const errorMsg = errorData.message || JSON.stringify(errorData, null, 2);
+                    alert(`データの送信に失敗しました。\n理由: ${errorMsg}`);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('通信エラーが発生しました。');
+            }
+        }
+    </script>
+}

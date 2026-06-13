@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SleepPvtTracker.Core.DTOs;
 
 namespace SleepPvtTracker.Web.Models;
 
@@ -22,6 +23,21 @@ public class SubmitPvtViewModel
     [Required]
     [Display(Name = "Pvt実施結果")]
     public List<PvtTrialViewModel> Trials { get; set; } = [];
+
+    public SubmitPvtDto ConvertToDto()
+    {
+        var localStartTime = StartTime!.Value.ToLocalTime();
+        var localEndTime = EndTime!.Value.ToLocalTime();
+
+        return new SubmitPvtDto
+        {
+            SleepRecordId = SleepRecordId!.Value,
+            StartTime = localStartTime,
+            EndTime = localEndTime,
+            ExtraFalseStarts = ExtraFalseStarts!.Value,
+            Trials = Trials.Select(t => new PvtTrialDto { ChangedAt = t.ChangedAt!.Value, ClickedAt = t.ClickedAt!.Value }).ToList()
+        };
+    }
 }
 
 public class PvtTrialViewModel

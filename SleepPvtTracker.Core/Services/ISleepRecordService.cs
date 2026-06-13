@@ -14,7 +14,7 @@ public interface ISleepRecordService
     /// </summary>
     /// <param name="dto"></param>
     /// <returns></returns>
-    Task CreateSleepRecordAsync(CreateSleepRecordDto dto);
+    Task CreateSleepRecordAsync(CreateSleepRecordDto dto, DateTime dateTime);
 
     /// <summary>
     /// 睡眠記録を削除する

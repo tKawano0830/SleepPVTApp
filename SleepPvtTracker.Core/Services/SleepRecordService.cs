@@ -14,10 +14,10 @@ public class SleepRecordService(ISleepRecordRepository repository) : ISleepRecor
 {
     private readonly ISleepRecordRepository _repository = repository;
 
-    public async Task CreateSleepRecordAsync(CreateSleepRecordDto dto)
+    public async Task CreateSleepRecordAsync(CreateSleepRecordDto dto, DateTime currentTime)
     {
         var sleepiness = SubjectiveSleepiness.Create(dto.SleepinessLevel);
-        var newRecord = SleepRecord.Create(dto.Bedtime, dto.WakeUpTime, sleepiness);
+        var newRecord = SleepRecord.Create(dto.Bedtime, dto.WakeUpTime, sleepiness, currentTime);
 
         if (!string.IsNullOrWhiteSpace(dto.Comments)) newRecord.UpdateComments(dto.Comments);
 

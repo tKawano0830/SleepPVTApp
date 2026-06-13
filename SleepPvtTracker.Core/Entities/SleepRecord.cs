@@ -8,6 +8,9 @@ namespace SleepPvtTracker.Core.Entities;
 //memo:MainSleepをベースに作成
 public class SleepRecord
 {
+    public const int PvtAvailableMinutes = 90;
+    public const int MaxCommentsLength = 100;
+
     public Guid Id { get; init; }
 
     public DateTime Bedtime { get; private set; }
@@ -23,6 +26,8 @@ public class SleepRecord
     //☆ここに「昼寝」や「中途覚醒あり」をメモする想定だがいずれはオブジェクト化したい
     public string Comments { get; private set; } = string.Empty;
 
+    public bool IsPvtAvailable(DateTime currentTime) => PvtResult == null && (currentTime - WakeUpTime).TotalMinutes <= PvtAvailableMinutes;
+
     //EFCore用の空コンストラクタ
     private SleepRecord() { Sleepiness = null!; }
 
@@ -34,11 +39,12 @@ public class SleepRecord
         Sleepiness = sleepiness;
     }
 
-    public static SleepRecord Create(DateTime bedtime, DateTime wakeUpTime, SubjectiveSleepiness sleepiness)
+    public static SleepRecord Create(DateTime bedtime, DateTime wakeUpTime, SubjectiveSleepiness sleepiness, DateTime currentTime)
     {
         ArgumentNullException.ThrowIfNull(sleepiness);
 
         if (wakeUpTime < bedtime) throw new DomainException("起床時間は就寝時間より未来である必要があります");
+        if (wakeUpTime > currentTime) throw new DomainException("起床時間が未来に設定されています");
         if ((wakeUpTime - bedtime).TotalHours >= 24) throw new DomainException("1回の睡眠時間が24時間以上の記録はできません");
 
         return new SleepRecord(Guid.NewGuid(), bedtime, wakeUpTime, sleepiness);
@@ -47,7 +53,7 @@ public class SleepRecord
     public void UpdateComments(string comments)
     {
         //コメントの文字数は100文字以内にする(日記ではなく軽いメモとして利用して欲しいため)
-        if (comments?.Length > 100) throw new DomainException("コメントは100文字以内で入力してください");
+        if (comments?.Length > MaxCommentsLength) throw new DomainException($"コメントは{MaxCommentsLength}文字以内で入力してください");
 
         Comments = comments ?? string.Empty;
     }
@@ -60,7 +66,7 @@ public class SleepRecord
         var timeSinceWakeUp = pvtResult.StartTime - WakeUpTime;
 
         if (timeSinceWakeUp.TotalMinutes < 0) throw new DomainException("PVTの実施開始時間が起床時間より前になっています");
-        if (timeSinceWakeUp.TotalMinutes > 90) throw new DomainException("PVTは起床後90以内に実施してください");
+        if (timeSinceWakeUp.TotalMinutes > PvtAvailableMinutes) throw new DomainException($"PVTは起床後{PvtAvailableMinutes}分以内に実施してください");
 
         PvtResult = pvtResult;
     }

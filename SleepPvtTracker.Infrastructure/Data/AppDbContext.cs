@@ -33,6 +33,8 @@ public class AppDbContext : DbContext
                 pvt.OwnsMany(p => p.Trials, trial =>
                 {
                     trial.ToTable("SleepRecordPvtTrials");
+                    trial.WithOwner().HasForeignKey("SleepRecordId");
+                    trial.HasKey("SleepRecordId", "ChangedAt");
                 });
             });
         });

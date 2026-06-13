@@ -6,9 +6,9 @@ using SleepPvtTracker.Core.Exceptions;
 namespace SleepPvtTracker.Core.ValueObjects;
 
 //1回の試行データ
-public record PvtTrial(long ChacngedAt, long ClickedAt)
+public record PvtTrial(long ChangedAt, long ClickedAt)
 {
-    public long ReactionTime => ClickedAt - ChacngedAt;
+    public long ReactionTime => ClickedAt - ChangedAt;
     public bool IsFalseStart => ReactionTime < 0;
     ///☆遅延判定のmsは今後検討の余地あり
     public bool IsLapse => ReactionTime >= 500;
