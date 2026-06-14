@@ -9,7 +9,7 @@
 
 **リポジトリURL：** https://github.com/tKawano0830/SleepPVTApp.git
 
-**デモURL：**
+**デモURL：** https://sleeppvttracker-cvgxhhffa3bhhsde.centralindia-01.azurewebsites.net/
 
 ![でも画像sleepRecords](./images/demo_sleepRecords.png)
 ![デモ画像pvt](./images/demo_pvt.png)
@@ -72,7 +72,7 @@ MVP段階で現在以下の機能を備えている。
 - CI/CDパイプライン、Dockerなどのインフラ構築
 - 実務経験のないJavascript、Bootstrapの0からのコーディング
 
-### 開発における生成AI利用について：
+### 開発における生成AI利用について
 技術力アピールの信憑性を保つため、**AI駆動によるプロジェクトの自動生成(丸投げ)は一切行っておりません。** 以下の用途に限定し、生成されたコードは全て理解・説明できる範疇でのみ利用しています。
 - 睡眠研究の論文要約
 - 要件によるドメイン、アーキテクチャ設計のための思考の壁打ち
