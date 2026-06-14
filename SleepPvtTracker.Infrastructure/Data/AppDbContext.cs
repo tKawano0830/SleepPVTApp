@@ -17,6 +17,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<SleepRecord>(entity =>
         {
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasConversion(id => id.Value, value => new SleepRecordId(value));
 
             entity.OwnsOne(e => e.Sleepiness, sleepiness =>
             {
@@ -39,8 +40,8 @@ public class AppDbContext : DbContext
             });
         });
 
-        var record1Id = Guid.Parse("11111111-1111-1111-1111-111111111111");
-        var record2Id = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        var record1Id = new SleepRecordId(Guid.Parse("11111111-1111-1111-1111-111111111111"));
+        var record2Id = new SleepRecordId(Guid.Parse("22222222-2222-2222-2222-222222222222"));
         var baseDate = new DateTime(2026, 6, 13, 7, 0, 0);
 
         modelBuilder.Entity<SleepRecord>().HasData(

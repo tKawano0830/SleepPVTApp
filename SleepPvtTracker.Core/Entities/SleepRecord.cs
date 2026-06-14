@@ -4,6 +4,8 @@ using SleepPvtTracker.Core.ValueObjects;
 
 namespace SleepPvtTracker.Core.Entities;
 
+public readonly record struct SleepRecordId(Guid Value);
+
 //1回の睡眠をエンティティとして定義する
 //memo:MainSleepをベースに作成
 public class SleepRecord
@@ -11,7 +13,7 @@ public class SleepRecord
     public const int PvtAvailableMinutes = 90;
     public const int MaxCommentsLength = 100;
 
-    public Guid Id { get; init; }
+    public SleepRecordId Id { get; init; }
 
     public DateTime Bedtime { get; private set; }
     public DateTime WakeUpTime { get; private set; }
@@ -31,7 +33,7 @@ public class SleepRecord
     //EFCore用の空コンストラクタ
     private SleepRecord() { Sleepiness = null!; }
 
-    private SleepRecord(Guid id, DateTime bedtime, DateTime wakeUpTime, SubjectiveSleepiness sleepiness)
+    private SleepRecord(SleepRecordId id, DateTime bedtime, DateTime wakeUpTime, SubjectiveSleepiness sleepiness)
     {
         Id = id;
         Bedtime = bedtime;
@@ -47,7 +49,7 @@ public class SleepRecord
         if (wakeUpTime > currentTime) throw new DomainException("起床時間が未来に設定されています");
         if ((wakeUpTime - bedtime).TotalHours >= 24) throw new DomainException("1回の睡眠時間が24時間以上の記録はできません");
 
-        return new SleepRecord(Guid.NewGuid(), bedtime, wakeUpTime, sleepiness);
+        return new SleepRecord(new SleepRecordId(Guid.NewGuid()), bedtime, wakeUpTime, sleepiness);
     }
 
     public void UpdateComments(string comments)

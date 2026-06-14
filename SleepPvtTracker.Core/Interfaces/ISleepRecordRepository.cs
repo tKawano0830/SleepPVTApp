@@ -33,7 +33,7 @@ public interface ISleepRecordRepository
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    Task<SleepRecord?> GetByIdAsync(Guid id);
+    Task<SleepRecord?> GetByIdAsync(SleepRecordId id);
     /// <summary>
     /// 全ての記録を最新順で取得
     /// </summary>

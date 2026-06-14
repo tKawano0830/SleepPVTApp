@@ -17,7 +17,7 @@ public class SleepRecordServiceTests
 {
     private readonly Mock<ISleepRecordRepository> _mockReoisitory;
     private readonly SleepRecordService _service;
-    private static readonly Guid DummyId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+    private static readonly SleepRecordId DummyId = new SleepRecordId(Guid.Parse("11111111-1111-1111-1111-111111111111"));
 
     public SleepRecordServiceTests()
     {
@@ -52,7 +52,7 @@ public class SleepRecordServiceTests
 
         _mockReoisitory.Setup(r => r.GetByIdAsync(sleepRecordId)).ReturnsAsync(dummyRecord);
 
-        await _service.DeleteSleepRecordAsync(sleepRecordId);
+        await _service.DeleteSleepRecordAsync(sleepRecordId.Value);
 
         _mockReoisitory.Verify(r => r.DeleteAsync(It.IsAny<SleepRecord>()), Times.Once);
     }
@@ -64,7 +64,7 @@ public class SleepRecordServiceTests
 
         _mockReoisitory.Setup(r => r.GetByIdAsync(sleepRecordId)).ReturnsAsync((SleepRecord?)null);
 
-        Func<Task> act = async () => await _service.DeleteSleepRecordAsync(sleepRecordId);
+        Func<Task> act = async () => await _service.DeleteSleepRecordAsync(sleepRecordId.Value);
 
         await act.Should().ThrowAsync<EntityNotFoundException>().WithMessage("*睡眠記録*");
 
@@ -78,7 +78,7 @@ public class SleepRecordServiceTests
         var dummyRecord = CreateDummySleepRecord();
         var dto = new SubmitPvtDto
         {
-            SleepRecordId = sleepRecordId,
+            SleepRecordId = sleepRecordId.Value,
             StartTime = dummyRecord.WakeUpTime.AddMinutes(10),
             EndTime = dummyRecord.WakeUpTime.AddMinutes(13),
             Trials = new List<PvtTrialDto> { new PvtTrialDto { ChangedAt = 1000, ClickedAt = 1250 } }
@@ -98,7 +98,7 @@ public class SleepRecordServiceTests
         var dummyRecord = CreateDummySleepRecord();
         var dto = new SubmitPvtDto
         {
-            SleepRecordId = sleepRecordId,
+            SleepRecordId = sleepRecordId.Value,
             StartTime = dummyRecord.WakeUpTime.AddMinutes(10),
             EndTime = dummyRecord.WakeUpTime.AddMinutes(13),
             Trials = new List<PvtTrialDto> { new PvtTrialDto { ChangedAt = 1000, ClickedAt = 1250 } }

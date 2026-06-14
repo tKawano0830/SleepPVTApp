@@ -28,7 +28,7 @@ public class SleepRecordRepository(AppDbContext context) : ISleepRecordRepositor
         await _context.SaveChangesAsync();
     }
 
-    public async Task<SleepRecord?> GetByIdAsync(Guid id)
+    public async Task<SleepRecord?> GetByIdAsync(SleepRecordId id)
     {
         return await _context.SleepRecords.FirstOrDefaultAsync(r => r.Id == id);
     }

@@ -21,7 +21,7 @@ public class SleepRecordTests
         var record = SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime);
 
         record.Should().NotBeNull();
-        record.Id.Should().NotBeEmpty();
+        record.Id.Value.Should().NotBeEmpty();
         record.Duration.TotalHours.Should().Be(8);
         record.TargetDate.Should().Be(new DateOnly(2026, 6, 13));
         record.Comments.Should().BeEmpty();

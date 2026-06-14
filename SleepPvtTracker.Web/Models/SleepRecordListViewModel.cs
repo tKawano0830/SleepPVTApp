@@ -19,7 +19,7 @@ public class SleepRecordListViewModel
     {
         return new SleepRecordListViewModel
         {
-            Id = entity.Id,
+            Id = entity.Id.Value,
             TargetDate = entity.TargetDate.ToString("yyyy/MM/dd"),
             Bedtime = entity.Bedtime.ToString("MM/dd HH:mm"),
             WakeUpTime = entity.WakeUpTime.ToString("MM/dd HH:mm"),

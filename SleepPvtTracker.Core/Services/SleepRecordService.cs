@@ -26,7 +26,8 @@ public class SleepRecordService(ISleepRecordRepository repository) : ISleepRecor
 
     public async Task DeleteSleepRecordAsync(Guid id)
     {
-        var record = await _repository.GetByIdAsync(id) ?? throw new EntityNotFoundException("指定された睡眠記録が見つかりません");
+        var recordId = new SleepRecordId(id);
+        var record = await _repository.GetByIdAsync(recordId) ?? throw new EntityNotFoundException("指定された睡眠記録が見つかりません");
 
         //☆削除対象のドメインルールが追加されたらここに追記
 
@@ -35,7 +36,8 @@ public class SleepRecordService(ISleepRecordRepository repository) : ISleepRecor
 
     public async Task SubmitPvtAsync(SubmitPvtDto dto)
     {
-        var record = await _repository.GetByIdAsync(dto.SleepRecordId) ?? throw new EntityNotFoundException("指定された睡眠記録が見つかりません");
+        var recordId = new SleepRecordId(dto.SleepRecordId);
+        var record = await _repository.GetByIdAsync(recordId) ?? throw new EntityNotFoundException("指定された睡眠記録が見つかりません");
 
         if (record.PvtResult != null) throw new DomainException("この睡眠記録にはすでにPVT結果が保存されています。");
 
