@@ -11,7 +11,7 @@ using SleepPvtTracker.Infrastructure.Data;
 namespace SleepPvtTracker.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260612120924_InitialCreate")]
+    [Migration("20260618063540_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -23,7 +23,6 @@ namespace SleepPvtTracker.Infrastructure.Migrations
             modelBuilder.Entity("SleepPvtTracker.Core.Entities.SleepRecord", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("Bedtime")
@@ -31,6 +30,7 @@ namespace SleepPvtTracker.Infrastructure.Migrations
 
                     b.Property<string>("Comments")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("WakeUpTime")
@@ -76,34 +76,17 @@ namespace SleepPvtTracker.Infrastructure.Migrations
                                 .HasColumnType("TEXT")
                                 .HasColumnName("PvtStartTime");
 
+                            b1.Property<string>("Trials")
+                                .IsRequired()
+                                .HasColumnType("TEXT")
+                                .HasColumnName("PvtTrialsJson");
+
                             b1.HasKey("SleepRecordId");
 
                             b1.ToTable("SleepRecords");
 
                             b1.WithOwner()
                                 .HasForeignKey("SleepRecordId");
-
-                            b1.OwnsMany("SleepPvtTracker.Core.ValueObjects.PvtTrial", "Trials", b2 =>
-                                {
-                                    b2.Property<Guid>("SleepRecordId")
-                                        .HasColumnType("TEXT");
-
-                                    b2.Property<long>("ChangedAt")
-                                        .ValueGeneratedOnAdd()
-                                        .HasColumnType("INTEGER");
-
-                                    b2.Property<long>("ClickedAt")
-                                        .HasColumnType("INTEGER");
-
-                                    b2.HasKey("SleepRecordId", "ChangedAt");
-
-                                    b2.ToTable("SleepRecordPvtTrials", (string)null);
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("SleepRecordId");
-                                });
-
-                            b1.Navigation("Trials");
                         });
 
                     b.OwnsOne("SleepPvtTracker.Core.ValueObjects.SubjectiveSleepiness", "Sleepiness", b1 =>
