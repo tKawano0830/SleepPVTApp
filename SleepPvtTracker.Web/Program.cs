@@ -11,6 +11,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=sleeppvttracker.db"));
 
+builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
+
 builder.Services.AddScoped<ISleepRecordRepository, SleepRecordRepository>();
 builder.Services.AddScoped<ISleepRecordService, SleepRecordService>();
 
