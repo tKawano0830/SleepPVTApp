@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SleepPvtTracker.Core.Interfaces;
-using SleepPvtTracker.Core.Services;
+using SleepPvtTracker.Core.UseCases;
 using SleepPvtTracker.Infrastructure.Data;
 using SleepPvtTracker.Infrastructure.Repositories;
 
@@ -14,7 +14,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder
 builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
 
 builder.Services.AddScoped<ISleepRecordRepository, SleepRecordRepository>();
-builder.Services.AddScoped<ISleepRecordService, SleepRecordService>();
+builder.Services.AddScoped<ISleepRecordUseCase, SleepRecordUseCase>();
 
 var app = builder.Build();
 

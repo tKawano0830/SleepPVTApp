@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using SleepPvtTracker.Web.Models;
-using SleepPvtTracker.Core.Services;
+using SleepPvtTracker.Core.UseCases;
 
 namespace SleepPvtTracker.Web.Controllers;
 
-public class SleepRecordController(ISleepRecordService service, TimeProvider timeProvider) : Controller
+public class SleepRecordController(ISleepRecordUseCase service, TimeProvider timeProvider) : Controller
 {
 
     [HttpGet]

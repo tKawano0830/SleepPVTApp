@@ -1,4 +1,4 @@
-using SleepPvtTracker.Core.Entities;
+using SleepPvtTracker.Core.Domain.Entities;
 
 namespace SleepPvtTracker.Web.Models;
 

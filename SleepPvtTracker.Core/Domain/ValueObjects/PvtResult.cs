@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using SleepPvtTracker.Core.Common;
-using SleepPvtTracker.Core.Exceptions;
 
-namespace SleepPvtTracker.Core.ValueObjects;
+namespace SleepPvtTracker.Core.Domain.ValueObjects;
 
 //1回の試行データ
 public record PvtTrial(long ChangedAt, long ClickedAt)

@@ -1,7 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using SleepPvtTracker.Core.Entities;
+
+using SleepPvtTracker.Core.Domain.Entities;
 
 namespace SleepPvtTracker.Core.Interfaces;
 

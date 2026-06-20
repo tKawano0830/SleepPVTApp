@@ -1,10 +1,9 @@
 using System;
 using FluentAssertions;
-using SleepPvtTracker.Core.Exceptions;
-using SleepPvtTracker.Core.ValueObjects;
+using SleepPvtTracker.Core.Domain.ValueObjects;
 using Xunit;
 
-namespace SleepPvtTracker.Core.ValueObjects;
+namespace SleepPvtTracker.Core.Domain.ValueObjects;
 
 public class SubjectiveSleepinessTests
 {

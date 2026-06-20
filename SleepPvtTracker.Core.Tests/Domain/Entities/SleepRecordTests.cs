@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using FluentAssertions;
-using SleepPvtTracker.Core.Entities;
-using SleepPvtTracker.Core.Exceptions;
-using SleepPvtTracker.Core.ValueObjects;
-using Xunit;
+using SleepPvtTracker.Core.Domain.Entities;
+using SleepPvtTracker.Core.Domain.ValueObjects;
 
-namespace SleepPvtTracker.Core.Tests.Entities;
+namespace SleepPvtTracker.Core.Tests.Domain.Entities;
 
 public class SleepRecordTests
 {

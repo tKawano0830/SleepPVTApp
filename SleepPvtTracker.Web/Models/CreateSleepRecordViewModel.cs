@@ -1,6 +1,6 @@
 
 using System.ComponentModel.DataAnnotations;
-using SleepPvtTracker.Core.DTOs;
+using SleepPvtTracker.Core.UseCases.Dtos;
 
 namespace SleepPvtTracker.Web.Models;
 

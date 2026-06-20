@@ -1,17 +1,13 @@
-using System;
-using System.Drawing;
-using System.Linq;
-using System.Threading.Tasks;
 using SleepPvtTracker.Core.Common;
-using SleepPvtTracker.Core.DTOs;
-using SleepPvtTracker.Core.Entities;
-using SleepPvtTracker.Core.Exceptions;
+using SleepPvtTracker.Core.UseCases.Dtos;
+using SleepPvtTracker.Core.Domain.Entities;
+using SleepPvtTracker.Core.Domain.ValueObjects;
 using SleepPvtTracker.Core.Interfaces;
-using SleepPvtTracker.Core.ValueObjects;
 
-namespace SleepPvtTracker.Core.Services;
 
-public class SleepRecordService(ISleepRecordRepository repository) : ISleepRecordService
+namespace SleepPvtTracker.Core.UseCases;
+
+public class SleepRecordUseCase(ISleepRecordRepository repository) : ISleepRecordUseCase
 {
     private readonly ISleepRecordRepository _repository = repository;
 

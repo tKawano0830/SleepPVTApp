@@ -3,26 +3,25 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
-using SleepPvtTracker.Core.DTOs;
-using SleepPvtTracker.Core.Entities;
-using SleepPvtTracker.Core.Exceptions;
+using SleepPvtTracker.Core.UseCases.Dtos;
+using SleepPvtTracker.Core.Domain.Entities;
 using SleepPvtTracker.Core.Interfaces;
-using SleepPvtTracker.Core.Services;
-using SleepPvtTracker.Core.ValueObjects;
+using SleepPvtTracker.Core.UseCases;
+using SleepPvtTracker.Core.Domain.ValueObjects;
 using Xunit;
 
-namespace SleepPvtTracker.Core.Tests.Services;
+namespace SleepPvtTracker.Core.Tests.UseCases;
 
-public class SleepRecordServiceTests
+public class SleepRecordUseCaseTests
 {
     private readonly Mock<ISleepRecordRepository> _mockReoisitory;
-    private readonly SleepRecordService _service;
+    private readonly SleepRecordUseCase _service;
     private static readonly SleepRecordId DummyId = new SleepRecordId(Guid.Parse("11111111-1111-1111-1111-111111111111"));
 
-    public SleepRecordServiceTests()
+    public SleepRecordUseCaseTests()
     {
         _mockReoisitory = new Mock<ISleepRecordRepository>();
-        _service = new SleepRecordService(_mockReoisitory.Object);
+        _service = new SleepRecordUseCase(_mockReoisitory.Object);
     }
 
     [Fact]

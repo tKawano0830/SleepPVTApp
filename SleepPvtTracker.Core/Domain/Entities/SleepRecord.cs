@@ -1,9 +1,7 @@
-using System;
 using SleepPvtTracker.Core.Common;
-using SleepPvtTracker.Core.Exceptions;
-using SleepPvtTracker.Core.ValueObjects;
+using SleepPvtTracker.Core.Domain.ValueObjects;
 
-namespace SleepPvtTracker.Core.Entities;
+namespace SleepPvtTracker.Core.Domain.Entities;
 
 public readonly record struct SleepRecordId(Guid Value);
 

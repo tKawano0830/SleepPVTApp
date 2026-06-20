@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using SleepPvtTracker.Core.Entities;
+using SleepPvtTracker.Core.Domain.Entities;
 using SleepPvtTracker.Core.Interfaces;
 using SleepPvtTracker.Infrastructure.Data;
 

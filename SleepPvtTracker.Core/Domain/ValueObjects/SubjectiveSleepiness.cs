@@ -1,8 +1,6 @@
-using System;
 using SleepPvtTracker.Core.Common;
-using SleepPvtTracker.Core.Exceptions;
 
-namespace SleepPvtTracker.Core.ValueObjects;
+namespace SleepPvtTracker.Core.Domain.ValueObjects;
 
 /// <summary>
 /// 眠気の主観的評価

@@ -1,14 +1,13 @@
-using System.Threading.Tasks;
 using SleepPvtTracker.Core.Common;
-using SleepPvtTracker.Core.DTOs;
-using SleepPvtTracker.Core.Entities;
+using SleepPvtTracker.Core.Domain.Entities;
+using SleepPvtTracker.Core.UseCases.Dtos;
 
-namespace SleepPvtTracker.Core.Services;
+namespace SleepPvtTracker.Core.UseCases;
 
 /// <summary>
 /// 睡眠時間記録用ユースケースインタフェース
 /// </summary>
-public interface ISleepRecordService
+public interface ISleepRecordUseCase
 {
     /// <summary>
     /// 睡眠記録を新規作成する

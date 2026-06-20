@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using SleepPvtTracker.Core.Common;
-using SleepPvtTracker.Core.Exceptions;
-using SleepPvtTracker.Core.ValueObjects;
+using SleepPvtTracker.Core.Domain.ValueObjects;
 using Xunit;
 
-namespace SleepPvtTracker.Core.Tests.ValueObjects;
+namespace SleepPvtTracker.Core.Tests.Domain.ValueObjects;
 
 public class PvtResultTests
 {

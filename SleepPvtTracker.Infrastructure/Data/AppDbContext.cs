@@ -2,8 +2,8 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.VisualBasic;
-using SleepPvtTracker.Core.Entities;
-using SleepPvtTracker.Core.ValueObjects;
+using SleepPvtTracker.Core.Domain.Entities;
+using SleepPvtTracker.Core.Domain.ValueObjects;
 
 namespace SleepPvtTracker.Infrastructure.Data;
 
