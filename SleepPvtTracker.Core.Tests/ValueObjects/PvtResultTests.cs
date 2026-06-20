@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
+using SleepPvtTracker.Core.Common;
 using SleepPvtTracker.Core.Exceptions;
 using SleepPvtTracker.Core.ValueObjects;
 using Xunit;
@@ -20,12 +21,13 @@ public class PvtResultTests
 
         var result = PvtResult.Create(startTime, endTime, pvtTrials, extraFalseStarts);
 
-        result.Should().NotBeNull();
-        result.StartTime.Should().Be(startTime);
-        result.EndTime.Should().Be(endTime);
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value.StartTime.Should().Be(startTime);
+        result.Value.EndTime.Should().Be(endTime);
         //オブジェクトの同等比較
-        result.Trials.Should().BeEquivalentTo(pvtTrials);
-        result.ExtraFalseStarts.Should().Be(extraFalseStarts);
+        result.Value.Trials.Should().BeEquivalentTo(pvtTrials);
+        result.Value.ExtraFalseStarts.Should().Be(extraFalseStarts);
     }
 
     [Fact]
@@ -36,14 +38,16 @@ public class PvtResultTests
     }
 
     [Fact]
-    public void Create_不正な時間関係が渡された場合_例外をスローすること()
+    public void Create_不正な時間関係が渡された場合_失敗のResultを返すこと()
     {
         var startTime = new DateTime(2026, 6, 13, 8, 0, 0);
         var endTime = new DateTime(2026, 6, 13, 7, 59, 0);
         var pvtTrials = new List<PvtTrial>();
 
-        Action act = () => PvtResult.Create(startTime, endTime, pvtTrials, 0);
-        act.Should().Throw<DomainException>().WithMessage("*終了時間*");
+        var result = PvtResult.Create(startTime, endTime, pvtTrials, 0);
+
+        result.IsFailure.Should().BeTrue();
+        result.ErrorMessage.Should().Contain("終了時間");
     }
 
     [Fact]
@@ -127,7 +131,10 @@ public class PvtResultTests
 
     private static PvtResult CreateTestObject(List<PvtTrial> pvtTrials, int extraFalseStarts = 0)
     {
-        return PvtResult.Create(new DateTime(2026, 6, 13, 8, 0, 0), new DateTime(2026, 6, 13, 8, 3, 0), pvtTrials, extraFalseStarts);
+        var startTime = new DateTime(2026, 6, 13, 8, 0, 0);
+        var endTime = new DateTime(2026, 6, 13, 8, 3, 0);
+        var result = PvtResult.Create(startTime, endTime, pvtTrials, extraFalseStarts);
+        return result.Value;
     }
 
 }

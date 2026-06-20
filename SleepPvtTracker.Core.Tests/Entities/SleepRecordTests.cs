@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using FluentAssertions;
 using SleepPvtTracker.Core.Entities;
 using SleepPvtTracker.Core.Exceptions;
@@ -20,47 +21,51 @@ public class SleepRecordTests
 
         var record = SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime);
 
-        record.Should().NotBeNull();
-        record.Id.Value.Should().NotBeEmpty();
-        record.Duration.TotalHours.Should().Be(8);
-        record.TargetDate.Should().Be(new DateOnly(2026, 6, 13));
-        record.Comments.Should().BeEmpty();
+        record.IsSuccess.Should().BeTrue();
+        record.Value.Should().NotBeNull();
+        record.Value.Id.Value.Should().NotBeEmpty();
+        record.Value.Duration.TotalHours.Should().Be(8);
+        record.Value.TargetDate.Should().Be(new DateOnly(2026, 6, 13));
+        record.Value.Comments.Should().BeEmpty();
     }
 
     [Fact]
-    public void Create_就寝時間が起床時間より未来の場合_例外をスローすること()
+    public void Create_就寝時間が起床時間より未来の場合_失敗のResultを返すこと()
     {
         var currentTime = new DateTime(2026, 6, 13, 8, 0, 0);
         var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
         var wakeUpTime = new DateTime(2026, 6, 12, 7, 0, 0);
 
-        Action act = () => SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime);
+        var record = SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime);
 
-        act.Should().Throw<DomainException>().WithMessage("*起床時間*");
+        record.IsFailure.Should().BeTrue();
+        record.ErrorMessage.Should().Contain("起床時間");
     }
 
     [Fact]
-    public void Create_起床時間が現在時刻より未来の場合_例外をスローすること()
+    public void Create_起床時間が現在時刻より未来の場合_失敗のResultを返すこと()
     {
         var currentTime = new DateTime(2026, 6, 12, 6, 0, 0);
         var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
         var wakeUpTime = new DateTime(2026, 6, 12, 7, 0, 0);
 
-        Action act = () => SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime);
+        var record = SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime);
 
-        act.Should().Throw<DomainException>().WithMessage("*起床時間*");
+        record.IsFailure.Should().BeTrue();
+        record.ErrorMessage.Should().Contain("起床時間");
     }
 
     [Fact]
-    public void Create_睡眠時間が24時間以上の場合_例外をスローすること()
+    public void Create_睡眠時間が24時間以上の場合_失敗のResultを返すこと()
     {
         var currentTime = new DateTime(2026, 6, 14, 8, 0, 0);
         var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
         var wakeUpTime = new DateTime(2026, 6, 13, 23, 0, 0);
 
-        Action act = () => SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime);
+        var record = SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime);
 
-        act.Should().Throw<DomainException>().WithMessage("*睡眠時間*");
+        record.IsFailure.Should().BeTrue();
+        record.ErrorMessage.Should().Contain("睡眠時間");
     }
 
     [Fact]
@@ -69,19 +74,23 @@ public class SleepRecordTests
         var record = CreateValidRecord();
         var validComments = new string('a', SleepRecord.MaxCommentsLength);
 
-        record.UpdateComments(validComments);
+        var result = record.UpdateComments(validComments);
 
+        result.IsSuccess.Should().BeTrue();
         record.Comments.Should().Be(validComments);
     }
 
     [Fact]
-    public void UpdateComments_既定の文字数を超える場合_例外をスローすること()
+    public void UpdateComments_既定の文字数を超える場合_失敗のResultを返すこと()
     {
+        var record = CreateValidRecord();
         var invalidComments = new string('a', SleepRecord.MaxCommentsLength + 1);
 
-        Action act = () => CreateValidRecord().UpdateComments(invalidComments);
+        var result = record.UpdateComments(invalidComments);
 
-        act.Should().Throw<DomainException>().WithMessage("*コメント*");
+        result.IsFailure.Should().BeTrue();
+        result.ErrorMessage.Should().Contain("コメント");
+        record.Comments.Should().BeEmpty();
     }
 
     [Fact]
@@ -90,30 +99,33 @@ public class SleepRecordTests
         var currentTime = new DateTime(2026, 6, 13, 8, 0, 0);
         var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
         var wakeUpTime = new DateTime(2026, 6, 13, 7, 0, 0);
-        var record = SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime);
+        var record = SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime).Value;
 
         var validPvtStart = wakeUpTime.AddMinutes(SleepRecord.PvtAvailableMinutes);
-        var pvtResult = PvtResult.Create(validPvtStart, validPvtStart.AddMinutes(3), new List<PvtTrial>(), 0);
+        var pvtResult = PvtResult.Create(validPvtStart, validPvtStart.AddMinutes(3), new List<PvtTrial>(), 0).Value;
 
-        record.RecordPvt(pvtResult);
+        var result = record.RecordPvt(pvtResult);
 
+        result.IsSuccess.Should().BeTrue();
         record.PvtResult.Should().BeEquivalentTo(pvtResult);
     }
 
     [Fact]
-    public void RecordPvt_開始時間が既定時間を1秒でも超過した場合_例外をスローすること()
+    public void RecordPvt_開始時間が既定時間を1秒でも超過した場合_失敗のResultを返すこと()
     {
         var currentTime = new DateTime(2026, 6, 13, 8, 0, 0);
         var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
         var wakeUpTime = new DateTime(2026, 6, 13, 7, 0, 0);
-        var record = SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime);
+        var record = SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime).Value;
 
         var invalidPvtStart = wakeUpTime.AddMinutes(SleepRecord.PvtAvailableMinutes).AddSeconds(1);
-        var pvtResult = PvtResult.Create(invalidPvtStart, invalidPvtStart.AddMinutes(3), new List<PvtTrial>(), 0);
+        var pvtResult = PvtResult.Create(invalidPvtStart, invalidPvtStart.AddMinutes(3), new List<PvtTrial>(), 0).Value;
 
-        Action act = () => record.RecordPvt(pvtResult);
+        var result = record.RecordPvt(pvtResult);
 
-        act.Should().Throw<DomainException>();
+        result.IsFailure.Should().BeTrue();
+        result.ErrorMessage.Should().Contain("PVT");
+        record.PvtResult.Should().BeNull();
     }
 
     private static SleepRecord CreateValidRecord()
@@ -121,8 +133,8 @@ public class SleepRecordTests
         var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
         var wakeUpTime = new DateTime(2026, 6, 13, 7, 0, 0);
 
-        return SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, DateTime.Now);
+        return SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, DateTime.Now).Value;
     }
-    private static readonly SubjectiveSleepiness ValidSleepness = SubjectiveSleepiness.Create(5);
+    private static readonly SubjectiveSleepiness ValidSleepness = SubjectiveSleepiness.Create(5).Value;
 
 }

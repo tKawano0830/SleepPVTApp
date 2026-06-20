@@ -1,4 +1,5 @@
 using System;
+using SleepPvtTracker.Core.Common;
 using SleepPvtTracker.Core.Exceptions;
 
 namespace SleepPvtTracker.Core.ValueObjects;
@@ -16,11 +17,11 @@ public record SubjectiveSleepiness
         Level = level;
     }
 
-    public static SubjectiveSleepiness Create(int level)
+    public static Result<SubjectiveSleepiness> Create(int level)
     {
         //カロリンスカ眠気尺度(KSS)を採用
-        if (level < 1 || level > 9) throw new DomainException("眠気レベルは1から9の範囲で指定してください");
+        if (level < 1 || level > 9) return Result<SubjectiveSleepiness>.Fail("眠気レベルは1から9の範囲で指定してください");
 
-        return new SubjectiveSleepiness(level);
+        return Result<SubjectiveSleepiness>.Ok(new SubjectiveSleepiness(level));
     }
 }

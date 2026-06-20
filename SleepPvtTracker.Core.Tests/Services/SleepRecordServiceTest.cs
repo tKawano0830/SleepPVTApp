@@ -39,9 +39,30 @@ public class SleepRecordServiceTests
             Comments = "テスト"
         };
 
-        await _service.CreateSleepRecordAsync(dto, currentTime);
+        var result = await _service.CreateSleepRecordAsync(dto, currentTime);
 
+        result.IsSuccess.Should().BeTrue();
         _mockReoisitory.Verify(r => r.AddAsync(It.IsAny<SleepRecord>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateSleepRecordAsync_ドメインルール違反のDTOが渡された場合_失敗のResultを返すこと()
+    {
+        var currentTime = new DateTime(2026, 6, 13, 8, 0, 0);
+        var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
+        var validWakeUpTime = new DateTime(2026, 6, 12, 7, 0, 0);//就寝時間より過去
+        var dto = new CreateSleepRecordDto
+        {
+            Bedtime = bedtime,
+            WakeUpTime = validWakeUpTime,
+            SleepinessLevel = 1,
+            Comments = "テスト"
+        };
+
+        var result = await _service.CreateSleepRecordAsync(dto, currentTime);
+
+        result.IsFailure.Should().BeTrue();
+        _mockReoisitory.Verify(r => r.AddAsync(It.IsAny<SleepRecord>()), Times.Never);
     }
 
     [Fact]
@@ -52,22 +73,23 @@ public class SleepRecordServiceTests
 
         _mockReoisitory.Setup(r => r.GetByIdAsync(sleepRecordId)).ReturnsAsync(dummyRecord);
 
-        await _service.DeleteSleepRecordAsync(sleepRecordId.Value);
+        var result = await _service.DeleteSleepRecordAsync(sleepRecordId.Value);
 
+        result.IsSuccess.Should().BeTrue();
         _mockReoisitory.Verify(r => r.DeleteAsync(It.IsAny<SleepRecord>()), Times.Once);
     }
 
     [Fact]
-    public async Task DeleteSleepRecordAsync_削除対象の睡眠記録が存在しない場合_例外がスローされること()
+    public async Task DeleteSleepRecordAsync_削除対象の睡眠記録が存在しない場合_失敗のResultを返すこと()
     {
         var sleepRecordId = DummyId;
 
         _mockReoisitory.Setup(r => r.GetByIdAsync(sleepRecordId)).ReturnsAsync((SleepRecord?)null);
 
-        Func<Task> act = async () => await _service.DeleteSleepRecordAsync(sleepRecordId.Value);
+        var result = await _service.DeleteSleepRecordAsync(sleepRecordId.Value);
 
-        await act.Should().ThrowAsync<EntityNotFoundException>().WithMessage("*睡眠記録*");
-
+        result.IsFailure.Should().BeTrue();
+        result.ErrorMessage.Should().Contain("削除対象");
         _mockReoisitory.Verify(repo => repo.DeleteAsync(It.IsAny<SleepRecord>()), Times.Never);
     }
 
@@ -86,13 +108,14 @@ public class SleepRecordServiceTests
 
         _mockReoisitory.Setup(r => r.GetByIdAsync(sleepRecordId)).ReturnsAsync(dummyRecord);
 
-        await _service.SubmitPvtAsync(dto);
+        var result = await _service.SubmitPvtAsync(dto);
 
+        result.IsSuccess.Should().BeTrue();
         _mockReoisitory.Verify(r => r.UpdateAsync(It.IsAny<SleepRecord>()), Times.Once);
     }
 
     [Fact]
-    public async Task SubmitPvtAsync_更新対象の睡眠記録が存在しない場合_例外がスローされること()
+    public async Task SubmitPvtAsync_更新対象の睡眠記録が存在しない場合_失敗のResultを返すこと()
     {
         var sleepRecordId = DummyId;
         var dummyRecord = CreateDummySleepRecord();
@@ -106,10 +129,10 @@ public class SleepRecordServiceTests
 
         _mockReoisitory.Setup(r => r.GetByIdAsync(sleepRecordId)).ReturnsAsync((SleepRecord?)null);
 
-        Func<Task> act = async () => await _service.SubmitPvtAsync(dto);
+        var result = await _service.SubmitPvtAsync(dto);
 
-        await act.Should().ThrowAsync<EntityNotFoundException>().WithMessage("*睡眠記録*");
-
+        result.IsFailure.Should().BeTrue();
+        result.ErrorMessage.Should().Contain("更新対象");
         _mockReoisitory.Verify(repo => repo.UpdateAsync(It.IsAny<SleepRecord>()), Times.Never);
     }
 
@@ -151,6 +174,6 @@ public class SleepRecordServiceTests
         var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
         var wakeUpTime = new DateTime(2026, 6, 13, 7, 0, 0);
 
-        return SleepRecord.Create(bedtime, wakeUpTime, SubjectiveSleepiness.Create(5), currentTime);
+        return SleepRecord.Create(bedtime, wakeUpTime, SubjectiveSleepiness.Create(5).Value, currentTime).Value;
     }
 }

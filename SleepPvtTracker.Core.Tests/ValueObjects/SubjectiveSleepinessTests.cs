@@ -16,18 +16,20 @@ public class SubjectiveSleepinessTests
     {
         var sleepiness = SubjectiveSleepiness.Create(validLevel);
 
-        sleepiness.Should().NotBeNull();
-        sleepiness.Level.Should().Be(validLevel);
+        sleepiness.IsSuccess.Should().BeTrue();
+        sleepiness.Value.Should().NotBeNull();
+        sleepiness.Value.Level.Should().Be(validLevel);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(10)]
     [InlineData(-5)]
-    public void Create_1から9以外の値を渡した場合_例外をスローすること(int invalidLevel)
+    public void Create_1から9以外の値を渡した場合_失敗のResultを返すこと(int invalidLevel)
     {
-        Action act = () => SubjectiveSleepiness.Create(invalidLevel);
+        var sleepiness = SubjectiveSleepiness.Create(invalidLevel);
 
-        act.Should().Throw<DomainException>().WithMessage("*眠気レベル*");
+        sleepiness.IsFailure.Should().BeTrue();
+        sleepiness.ErrorMessage.Should().Contain("眠気レベル");
     }
 }
