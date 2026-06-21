@@ -12,54 +12,29 @@ public class SleepRecordTests
         var currentTime = new DateTime(2026, 6, 13, 8, 0, 0);
         var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
         var wakeUpTime = new DateTime(2026, 6, 13, 7, 0, 0);
+        var validSleepPeriod = SleepPeriod.Create(bedtime, wakeUpTime).Value;
 
-        var record = SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime);
+        var record = SleepRecord.Create(validSleepPeriod, ValidSleepness, currentTime);
 
         record.IsSuccess.Should().BeTrue();
         record.Value.Should().NotBeNull();
         record.Value.Id.Value.Should().NotBeEmpty();
-        record.Value.Duration.TotalHours.Should().Be(8);
         record.Value.TargetDate.Should().Be(new DateOnly(2026, 6, 13));
         record.Value.Comments.Should().BeEmpty();
     }
 
     [Fact]
-    public void Create_就寝時間が起床時間より未来の場合_失敗のResultを返すこと()
-    {
-        var currentTime = new DateTime(2026, 6, 13, 8, 0, 0);
-        var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
-        var wakeUpTime = new DateTime(2026, 6, 12, 7, 0, 0);
-
-        var record = SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime);
-
-        record.IsFailure.Should().BeTrue();
-        record.ErrorMessage.Should().Contain("起床時間");
-    }
-
-    [Fact]
     public void Create_起床時間が現在時刻より未来の場合_失敗のResultを返すこと()
     {
-        var currentTime = new DateTime(2026, 6, 12, 6, 0, 0);
         var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
-        var wakeUpTime = new DateTime(2026, 6, 12, 7, 0, 0);
+        var wakeUpTime = new DateTime(2026, 6, 13, 7, 0, 0);
+        var validSleepPeriod = SleepPeriod.Create(bedtime, wakeUpTime).Value;
 
-        var record = SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime);
+        var currentTime = new DateTime(2026, 6, 12, 6, 0, 0);
+        var record = SleepRecord.Create(validSleepPeriod, ValidSleepness, currentTime);
 
         record.IsFailure.Should().BeTrue();
         record.ErrorMessage.Should().Contain("起床時間");
-    }
-
-    [Fact]
-    public void Create_睡眠時間が24時間以上の場合_失敗のResultを返すこと()
-    {
-        var currentTime = new DateTime(2026, 6, 14, 8, 0, 0);
-        var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
-        var wakeUpTime = new DateTime(2026, 6, 13, 23, 0, 0);
-
-        var record = SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime);
-
-        record.IsFailure.Should().BeTrue();
-        record.ErrorMessage.Should().Contain("睡眠時間");
     }
 
     [Fact]
@@ -93,7 +68,8 @@ public class SleepRecordTests
         var currentTime = new DateTime(2026, 6, 13, 8, 0, 0);
         var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
         var wakeUpTime = new DateTime(2026, 6, 13, 7, 0, 0);
-        var record = SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime).Value;
+        var validSleepPeriod = SleepPeriod.Create(bedtime, wakeUpTime).Value;
+        var record = SleepRecord.Create(validSleepPeriod, ValidSleepness, currentTime).Value;
 
         var validPvtStart = wakeUpTime.AddMinutes(SleepRecord.PvtAvailableMinutes);
         var pvtResult = PvtResult.Create(validPvtStart, validPvtStart.AddMinutes(3), new List<PvtTrial>(), 0).Value;
@@ -110,7 +86,8 @@ public class SleepRecordTests
         var currentTime = new DateTime(2026, 6, 13, 8, 0, 0);
         var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
         var wakeUpTime = new DateTime(2026, 6, 13, 7, 0, 0);
-        var record = SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, currentTime).Value;
+        var validSleepPeriod = SleepPeriod.Create(bedtime, wakeUpTime).Value;
+        var record = SleepRecord.Create(validSleepPeriod, ValidSleepness, currentTime).Value;
 
         var invalidPvtStart = wakeUpTime.AddMinutes(SleepRecord.PvtAvailableMinutes).AddSeconds(1);
         var pvtResult = PvtResult.Create(invalidPvtStart, invalidPvtStart.AddMinutes(3), new List<PvtTrial>(), 0).Value;
@@ -124,11 +101,14 @@ public class SleepRecordTests
 
     private static SleepRecord CreateValidRecord()
     {
+        return SleepRecord.Create(CreateValidSleepPeriod(), ValidSleepness, DateTime.Now).Value;
+    }
+    private static SleepPeriod CreateValidSleepPeriod()
+    {
         var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
         var wakeUpTime = new DateTime(2026, 6, 13, 7, 0, 0);
 
-        return SleepRecord.Create(bedtime, wakeUpTime, ValidSleepness, DateTime.Now).Value;
+        return SleepPeriod.Create(new DateTime(2026, 6, 12, 23, 0, 0), new DateTime(2026, 6, 13, 7, 0, 0)).Value;
     }
     private static readonly SubjectiveSleepiness ValidSleepness = SubjectiveSleepiness.Create(5).Value;
-
 }

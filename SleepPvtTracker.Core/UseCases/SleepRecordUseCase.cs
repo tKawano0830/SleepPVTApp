@@ -4,19 +4,19 @@ using SleepPvtTracker.Core.Domain.Entities;
 using SleepPvtTracker.Core.Domain.ValueObjects;
 using SleepPvtTracker.Core.Interfaces;
 
-
 namespace SleepPvtTracker.Core.UseCases;
 
 public class SleepRecordUseCase(ISleepRecordRepository repository) : ISleepRecordUseCase
 {
-    private readonly ISleepRecordRepository _repository = repository;
-
     public async Task<Result> CreateSleepRecordAsync(CreateSleepRecordDto dto, DateTime currentTime)
     {
         var sleepinessResult = SubjectiveSleepiness.Create(dto.SleepinessLevel);
         if (sleepinessResult.IsFailure) return Result.Fail(sleepinessResult.ErrorMessage);
 
-        var recordResult = SleepRecord.Create(dto.Bedtime, dto.WakeUpTime, sleepinessResult.Value, currentTime);
+        var sleepPeriodResult = SleepPeriod.Create(dto.Bedtime, dto.WakeUpTime);
+        if (sleepPeriodResult.IsFailure) return Result.Fail(sleepPeriodResult.ErrorMessage);
+
+        var recordResult = SleepRecord.Create(sleepPeriodResult.Value, sleepinessResult.Value, currentTime);
         if (recordResult.IsFailure) return Result.Fail(recordResult.ErrorMessage);
 
         if (!string.IsNullOrWhiteSpace(dto.Comments))
@@ -25,24 +25,22 @@ public class SleepRecordUseCase(ISleepRecordRepository repository) : ISleepRecor
             if (result.IsFailure) return Result.Fail(result.ErrorMessage);
         }
 
-        await _repository.AddAsync(recordResult.Value);
+        await repository.AddRecordAsync(recordResult.Value);
         return Result.Ok();
     }
 
     public async Task<Result> DeleteSleepRecordAsync(Guid id)
     {
-        var record = await _repository.GetByIdAsync(new SleepRecordId(id));
+        var record = await repository.GetRecordByIdAsync(new SleepRecordId(id));
         if (record == null) return Result.Fail("削除対象の睡眠記録が見つかりませんでした");
 
-        //☆削除対象のドメインルールが追加されたらここに追記
-
-        await _repository.DeleteAsync(record);
+        await repository.DeleteRecordAsync(record);
         return Result.Ok();
     }
 
     public async Task<Result> SubmitPvtAsync(SubmitPvtDto dto)
     {
-        var record = await _repository.GetByIdAsync(new SleepRecordId(dto.SleepRecordId));
+        var record = await repository.GetRecordByIdAsync(new SleepRecordId(dto.SleepRecordId));
         if (record == null) return Result.Fail("更新対象の睡眠記録が見つかりませんでした");
 
         if (record.PvtResult != null) return Result.Fail("この睡眠記録にはすでにPVT結果が保存されています");
@@ -54,12 +52,12 @@ public class SleepRecordUseCase(ISleepRecordRepository repository) : ISleepRecor
         var recordPvtResult = record.RecordPvt(pvtResult.Value);
         if (recordPvtResult.IsFailure) return Result.Fail(recordPvtResult.ErrorMessage);
 
-        await _repository.UpdateAsync(record);
+        await repository.UpdateRecordAsync(record);
         return Result.Ok();
     }
 
     public async Task<IReadOnlyList<SleepRecord>> GetAllSleepRecordsAsync()
     {
-        return await _repository.GetAllAsync();
+        return await repository.GetAllRecordsAsync();
     }
 }

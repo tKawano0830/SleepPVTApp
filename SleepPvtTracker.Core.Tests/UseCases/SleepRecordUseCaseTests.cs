@@ -41,7 +41,7 @@ public class SleepRecordUseCaseTests
         var result = await _service.CreateSleepRecordAsync(dto, currentTime);
 
         result.IsSuccess.Should().BeTrue();
-        _mockReoisitory.Verify(r => r.AddAsync(It.IsAny<SleepRecord>()), Times.Once);
+        _mockReoisitory.Verify(r => r.AddRecordAsync(It.IsAny<SleepRecord>()), Times.Once);
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class SleepRecordUseCaseTests
         var result = await _service.CreateSleepRecordAsync(dto, currentTime);
 
         result.IsFailure.Should().BeTrue();
-        _mockReoisitory.Verify(r => r.AddAsync(It.IsAny<SleepRecord>()), Times.Never);
+        _mockReoisitory.Verify(r => r.AddRecordAsync(It.IsAny<SleepRecord>()), Times.Never);
     }
 
     [Fact]
@@ -70,12 +70,12 @@ public class SleepRecordUseCaseTests
         var sleepRecordId = DummyId;
         var dummyRecord = CreateDummySleepRecord();
 
-        _mockReoisitory.Setup(r => r.GetByIdAsync(sleepRecordId)).ReturnsAsync(dummyRecord);
+        _mockReoisitory.Setup(r => r.GetRecordByIdAsync(sleepRecordId)).ReturnsAsync(dummyRecord);
 
         var result = await _service.DeleteSleepRecordAsync(sleepRecordId.Value);
 
         result.IsSuccess.Should().BeTrue();
-        _mockReoisitory.Verify(r => r.DeleteAsync(It.IsAny<SleepRecord>()), Times.Once);
+        _mockReoisitory.Verify(r => r.DeleteRecordAsync(It.IsAny<SleepRecord>()), Times.Once);
     }
 
     [Fact]
@@ -83,13 +83,13 @@ public class SleepRecordUseCaseTests
     {
         var sleepRecordId = DummyId;
 
-        _mockReoisitory.Setup(r => r.GetByIdAsync(sleepRecordId)).ReturnsAsync((SleepRecord?)null);
+        _mockReoisitory.Setup(r => r.GetRecordByIdAsync(sleepRecordId)).ReturnsAsync((SleepRecord?)null);
 
         var result = await _service.DeleteSleepRecordAsync(sleepRecordId.Value);
 
         result.IsFailure.Should().BeTrue();
         result.ErrorMessage.Should().Contain("削除対象");
-        _mockReoisitory.Verify(repo => repo.DeleteAsync(It.IsAny<SleepRecord>()), Times.Never);
+        _mockReoisitory.Verify(repo => repo.DeleteRecordAsync(It.IsAny<SleepRecord>()), Times.Never);
     }
 
     [Fact]
@@ -100,17 +100,17 @@ public class SleepRecordUseCaseTests
         var dto = new SubmitPvtDto
         {
             SleepRecordId = sleepRecordId.Value,
-            StartTime = dummyRecord.WakeUpTime.AddMinutes(10),
-            EndTime = dummyRecord.WakeUpTime.AddMinutes(13),
+            StartTime = dummyRecord.SleepPeriod.WakeUpTime.AddMinutes(10),
+            EndTime = dummyRecord.SleepPeriod.WakeUpTime.AddMinutes(13),
             Trials = new List<PvtTrialDto> { new PvtTrialDto { ChangedAt = 1000, ClickedAt = 1250 } }
         };
 
-        _mockReoisitory.Setup(r => r.GetByIdAsync(sleepRecordId)).ReturnsAsync(dummyRecord);
+        _mockReoisitory.Setup(r => r.GetRecordByIdAsync(sleepRecordId)).ReturnsAsync(dummyRecord);
 
         var result = await _service.SubmitPvtAsync(dto);
 
         result.IsSuccess.Should().BeTrue();
-        _mockReoisitory.Verify(r => r.UpdateAsync(It.IsAny<SleepRecord>()), Times.Once);
+        _mockReoisitory.Verify(r => r.UpdateRecordAsync(It.IsAny<SleepRecord>()), Times.Once);
     }
 
     [Fact]
@@ -121,18 +121,18 @@ public class SleepRecordUseCaseTests
         var dto = new SubmitPvtDto
         {
             SleepRecordId = sleepRecordId.Value,
-            StartTime = dummyRecord.WakeUpTime.AddMinutes(10),
-            EndTime = dummyRecord.WakeUpTime.AddMinutes(13),
+            StartTime = dummyRecord.SleepPeriod.WakeUpTime.AddMinutes(10),
+            EndTime = dummyRecord.SleepPeriod.WakeUpTime.AddMinutes(13),
             Trials = new List<PvtTrialDto> { new PvtTrialDto { ChangedAt = 1000, ClickedAt = 1250 } }
         };
 
-        _mockReoisitory.Setup(r => r.GetByIdAsync(sleepRecordId)).ReturnsAsync((SleepRecord?)null);
+        _mockReoisitory.Setup(r => r.GetRecordByIdAsync(sleepRecordId)).ReturnsAsync((SleepRecord?)null);
 
         var result = await _service.SubmitPvtAsync(dto);
 
         result.IsFailure.Should().BeTrue();
         result.ErrorMessage.Should().Contain("更新対象");
-        _mockReoisitory.Verify(repo => repo.UpdateAsync(It.IsAny<SleepRecord>()), Times.Never);
+        _mockReoisitory.Verify(repo => repo.UpdateRecordAsync(It.IsAny<SleepRecord>()), Times.Never);
     }
 
     [Fact]
@@ -143,7 +143,7 @@ public class SleepRecordUseCaseTests
             CreateDummySleepRecord(),
             CreateDummySleepRecord()
         };
-        _mockReoisitory.Setup(r => r.GetAllAsync()).ReturnsAsync(expectedRecords);
+        _mockReoisitory.Setup(r => r.GetAllRecordsAsync()).ReturnsAsync(expectedRecords);
 
         var result = await _service.GetAllSleepRecordsAsync();
 
@@ -151,20 +151,20 @@ public class SleepRecordUseCaseTests
         result.Should().HaveCount(2);
         result.Should().BeEquivalentTo(expectedRecords);
 
-        _mockReoisitory.Verify(r => r.GetAllAsync(), Times.Once);
+        _mockReoisitory.Verify(r => r.GetAllRecordsAsync(), Times.Once);
     }
 
     [Fact]
     public async Task GetAllSleepRecordAsync_睡眠記録データが存在しない場合_空のリストを返すこと()
     {
-        _mockReoisitory.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<SleepRecord>());
+        _mockReoisitory.Setup(r => r.GetAllRecordsAsync()).ReturnsAsync(new List<SleepRecord>());
 
         var result = await _service.GetAllSleepRecordsAsync();
 
         result.Should().NotBeNull();
         result.Should().BeEmpty();
 
-        _mockReoisitory.Verify(r => r.GetAllAsync(), Times.Once);
+        _mockReoisitory.Verify(r => r.GetAllRecordsAsync(), Times.Once);
     }
 
     private static SleepRecord CreateDummySleepRecord()
@@ -172,7 +172,8 @@ public class SleepRecordUseCaseTests
         var currentTime = new DateTime(2026, 6, 13, 8, 0, 0);
         var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
         var wakeUpTime = new DateTime(2026, 6, 13, 7, 0, 0);
+        var sleepPeriod = SleepPeriod.Create(bedtime, wakeUpTime).Value;
 
-        return SleepRecord.Create(bedtime, wakeUpTime, SubjectiveSleepiness.Create(5).Value, currentTime).Value;
+        return SleepRecord.Create(sleepPeriod, SubjectiveSleepiness.Create(5).Value, currentTime).Value;
     }
 }

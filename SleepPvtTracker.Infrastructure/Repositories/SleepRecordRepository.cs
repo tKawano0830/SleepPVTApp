@@ -10,33 +10,39 @@ namespace SleepPvtTracker.Infrastructure.Repositories;
 
 public class SleepRecordRepository(AppDbContext context) : ISleepRecordRepository
 {
-    private readonly AppDbContext _context = context;
 
-    public async Task AddAsync(SleepRecord record)
+    public async Task AddRecordAsync(SleepRecord record)
     {
-        await _context.SleepRecords.AddAsync(record);
-        await _context.SaveChangesAsync();
+        await context.SleepRecords.AddAsync(record);
+        await context.SaveChangesAsync();
     }
-    public async Task UpdateAsync(SleepRecord record)
+    public async Task UpdateRecordAsync(SleepRecord record)
     {
-        _context.SleepRecords.Update(record);
-        await _context.SaveChangesAsync();
+        context.SleepRecords.Update(record);
+        await context.SaveChangesAsync();
     }
-    public async Task DeleteAsync(SleepRecord record)
+    public async Task DeleteRecordAsync(SleepRecord record)
     {
-        _context.SleepRecords.Remove(record);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task<SleepRecord?> GetByIdAsync(SleepRecordId id)
-    {
-        return await _context.SleepRecords.FirstOrDefaultAsync(r => r.Id == id);
+        context.SleepRecords.Remove(record);
+        await context.SaveChangesAsync();
     }
 
-    public async Task<IReadOnlyList<SleepRecord>> GetAllAsync()
+    public async Task<SleepRecord?> GetRecordByIdAsync(SleepRecordId id)
     {
-        return await _context.SleepRecords
-            .OrderByDescending(r => r.WakeUpTime)
+        return await context.SleepRecords.FirstOrDefaultAsync(r => r.Id == id);
+    }
+
+    public async Task<IReadOnlyList<SleepRecord>> GetAllRecordsAsync()
+    {
+        return await context.SleepRecords
+            .OrderByDescending(r => r.SleepPeriod.WakeUpTime)
             .ToListAsync();
+    }
+
+    public async Task<IReadOnlyList<SleepRecord>> GetOverlappingRecordsAsync(SleepPeriod targetPeriod)
+    {
+        return await context.SleepRecords
+        .Where(r => r.SleepPeriod.Bedtime <= targetPeriod.WakeUpTime && targetPeriod.Bedtime <= r.SleepPeriod.WakeUpTime)
+        .ToListAsync();
     }
 }
