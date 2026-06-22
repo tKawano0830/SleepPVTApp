@@ -1,6 +1,4 @@
-using System;
-
-namespace SleepPvtTracker.Core.ValueObjects;
+namespace SleepPvtTracker.Core.Domain.ValueObjects;
 
 //ナップやうたた寝を含まず、きちんとベッドに横になって寝た時間として定義
 //※MainSleepは完全に撤廃しましたがドキュメントとして残します。

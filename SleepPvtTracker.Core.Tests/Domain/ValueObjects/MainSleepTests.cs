@@ -1,9 +1,9 @@
 using System;
 using FluentAssertions;
-using SleepPvtTracker.Core.ValueObjects;
+using SleepPvtTracker.Core.Domain.ValueObjects;
 using Xunit;
 
-namespace SleepPvtTracker.Core.Tests.ValueObjects;
+namespace SleepPvtTracker.Core.Tests.Domain.ValueObjects;
 
 //※MainSleepは完全に撤廃しましたがドキュメントとして残します。
 public class MainSleepTests

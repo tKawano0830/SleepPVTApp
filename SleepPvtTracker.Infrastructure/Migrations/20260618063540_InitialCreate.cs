@@ -23,31 +23,13 @@ namespace SleepPvtTracker.Infrastructure.Migrations
                     SleepinessLevel = table.Column<int>(type: "INTEGER", nullable: false),
                     PvtStartTime = table.Column<DateTime>(type: "TEXT", nullable: true),
                     PvtEndTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    PvtTrialsJson = table.Column<string>(type: "TEXT", nullable: true),
                     PvtExtraFalseStarts = table.Column<int>(type: "INTEGER", nullable: true),
-                    Comments = table.Column<string>(type: "TEXT", nullable: false)
+                    Comments = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SleepRecords", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SleepRecordPvtTrials",
-                columns: table => new
-                {
-                    ChangedAt = table.Column<long>(type: "INTEGER", nullable: false),
-                    SleepRecordId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ClickedAt = table.Column<long>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SleepRecordPvtTrials", x => new { x.SleepRecordId, x.ChangedAt });
-                    table.ForeignKey(
-                        name: "FK_SleepRecordPvtTrials_SleepRecords_SleepRecordId",
-                        column: x => x.SleepRecordId,
-                        principalTable: "SleepRecords",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
@@ -63,9 +45,6 @@ namespace SleepPvtTracker.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "SleepRecordPvtTrials");
-
             migrationBuilder.DropTable(
                 name: "SleepRecords");
         }

@@ -1,5 +1,5 @@
 
-namespace SleepPvtTracker.Core.DTOs;
+namespace SleepPvtTracker.Core.UseCases.Dtos;
 
 public class SubmitPvtDto
 {

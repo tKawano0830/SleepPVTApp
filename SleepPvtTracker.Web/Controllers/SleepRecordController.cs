@@ -1,22 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
 using SleepPvtTracker.Web.Models;
-using SleepPvtTracker.Core.DTOs;
-using SleepPvtTracker.Core.Services;
-using SleepPvtTracker.Core.Exceptions;
+using SleepPvtTracker.Core.UseCases;
 
 namespace SleepPvtTracker.Web.Controllers;
 
-public class SleepRecordController(ISleepRecordService service) : Controller
+public class SleepRecordController(ISleepRecordUseCase service, TimeProvider timeProvider) : Controller
 {
-    private readonly ISleepRecordService _service = service;
 
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var records = await _service.GetAllSleepRecordsAsync();
-
+        var records = await service.GetAllSleepRecordsAsync();
         var viewModels = records.Select(SleepRecordListViewModel.ConvertFromEntity).ToList();
-
         return View(viewModels);
     }
 
@@ -30,9 +25,7 @@ public class SleepRecordController(ISleepRecordService service) : Controller
     public IActionResult PvtTest(Guid id)
     {
         if (id == Guid.Empty) return BadRequest("無効なIDです");
-
         var viewModel = new SubmitPvtViewModel { SleepRecordId = id };
-
         return View(viewModel);
     }
 
@@ -42,21 +35,16 @@ public class SleepRecordController(ISleepRecordService service) : Controller
     {
         if (!ModelState.IsValid) return View(viewModel);
         var dto = viewModel.ConvertToDto();
+        var currentTime = timeProvider.GetLocalNow().DateTime;
 
-        try
+        var result = await service.CreateSleepRecordAsync(dto, currentTime);
+        if (result.IsFailure)
         {
-            await _service.CreateSleepRecordAsync(dto, DateTime.Now);
-            return RedirectToAction(nameof(Index));
-        }
-        catch (DomainException ex)
-        {
-            ModelState.AddModelError(string.Empty, ex.Message);
+            ModelState.AddModelError(string.Empty, result.ErrorMessage);
             return View(viewModel);
         }
-        catch (Exception)
-        {
-            return StatusCode(500, new { message = "サーバエラーが発生しました" });
-        }
+
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]
@@ -65,20 +53,11 @@ public class SleepRecordController(ISleepRecordService service) : Controller
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        try
-        {
-            var dto = viewModel.ConvertToDto();
-            await _service.SubmitPvtAsync(dto);
-            return Ok();
-        }
-        catch (DomainException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (Exception)
-        {
-            return StatusCode(500, new { message = "サーバエラーが発生しました" });
-        }
+        var dto = viewModel.ConvertToDto();
+        var result = await service.SubmitPvtAsync(dto);
+        if (result.IsFailure) return BadRequest(new { message = result.ErrorMessage });
+
+        return Ok();
     }
 
     [HttpPost]
@@ -86,15 +65,9 @@ public class SleepRecordController(ISleepRecordService service) : Controller
     public async Task<IActionResult> Delete(Guid id)
     {
         if (id == Guid.Empty) return BadRequest();
+        var result = await service.DeleteSleepRecordAsync(id);
+        if (result.IsFailure) return NotFound();
 
-        try
-        {
-            await _service.DeleteSleepRecordAsync(id);
-            return RedirectToAction(nameof(Index));
-        }
-        catch (EntityNotFoundException)
-        {
-            return NotFound();
-        }
+        return RedirectToAction(nameof(Index));
     }
 }

@@ -1,16 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using SleepPvtTracker.Core.Exceptions;
+using SleepPvtTracker.Core.Common;
 
-namespace SleepPvtTracker.Core.ValueObjects;
+namespace SleepPvtTracker.Core.Domain.ValueObjects;
 
 //1回の試行データ
 public record PvtTrial(long ChangedAt, long ClickedAt)
 {
     public long ReactionTime => ClickedAt - ChangedAt;
-    public bool IsFalseStart => ReactionTime < 0;
-    ///☆遅延判定のmsは今後検討の余地あり
+    //あまりに速すぎる反応もフライングとする
+    public bool IsFalseStart => ReactionTime < 50;
+    //☆遅延判定のmsは今後検討の余地あり
     public bool IsLapse => ReactionTime >= 500;
 }
 
@@ -39,15 +37,15 @@ public record PvtResult
 
     //memo:プリミティブ型を全てVoにするメリットが現状では少ないため、一旦ファクトリパターンでバリデーションを実装する
     //☆将来的に全部Voにしたい
-    public static PvtResult Create(DateTime startTime, DateTime endTime, List<PvtTrial> trials, int extraFalseStarts)
+    public static Result<PvtResult> Create(DateTime startTime, DateTime endTime, List<PvtTrial> trials, int extraFalseStarts)
     {
         //memo:null非許容のためプリミティブ型はnullチェックを行わない
         ArgumentNullException.ThrowIfNull(trials);
 
-        if (endTime < startTime) throw new DomainException("終了時間は開始時間よりも未来である必要があります");
-        if (extraFalseStarts < 0) throw new DomainException("無効クリック数は0以上である必要があります");
+        if (endTime < startTime) return Result<PvtResult>.Fail("終了時間は開始時間よりも未来である必要があります");
+        if (extraFalseStarts < 0) return Result<PvtResult>.Fail("無効クリック数は0以上である必要があります");
 
-        return new PvtResult(startTime, endTime, trials, extraFalseStarts);
+        return Result<PvtResult>.Ok(new PvtResult(startTime, endTime, trials, extraFalseStarts));
     }
 
     //以下、ビジネスルール

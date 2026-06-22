@@ -1,4 +1,4 @@
-using SleepPvtTracker.Core.Entities;
+using SleepPvtTracker.Core.Domain.Entities;
 
 namespace SleepPvtTracker.Web.Models;
 
@@ -19,12 +19,12 @@ public class SleepRecordListViewModel
     {
         return new SleepRecordListViewModel
         {
-            Id = entity.Id,
+            Id = entity.Id.Value,
             TargetDate = entity.TargetDate.ToString("yyyy/MM/dd"),
-            Bedtime = entity.Bedtime.ToString("MM/dd HH:mm"),
-            WakeUpTime = entity.WakeUpTime.ToString("MM/dd HH:mm"),
+            Bedtime = entity.SleepPeriod.Bedtime.ToString("MM/dd HH:mm"),
+            WakeUpTime = entity.SleepPeriod.WakeUpTime.ToString("MM/dd HH:mm"),
             Comments = entity.Comments,
-            Duration = entity.Duration.ToString(@"hh\:mm"),
+            Duration = entity.SleepPeriod.Duration.ToString(@"hh\:mm"),
             SleepinessLevel = entity.Sleepiness.Level,
             HasPvt = entity.PvtResult != null,
             IsPvtAvailable = entity.IsPvtAvailable(DateTime.Now),
