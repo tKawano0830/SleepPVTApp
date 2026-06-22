@@ -43,4 +43,32 @@ public class SleepPeriodTest
         period.IsFailure.Should().BeTrue();
         period.ErrorMessage.Should().Contain("睡眠時間");
     }
+
+    [Fact]
+    public void IsOverlapping_睡眠時間が部分重複している場合_trueを返すこと()
+    {
+        var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
+        var wakeUpTime = new DateTime(2026, 6, 13, 7, 0, 0);
+        var period = SleepPeriod.Create(bedtime, wakeUpTime).Value;
+
+        var otherBedtime = new DateTime(2026, 6, 12, 19, 0, 0);
+        var otherWakeUpTime = new DateTime(2026, 6, 13, 2, 0, 0);
+        var otherperiod = SleepPeriod.Create(otherBedtime, otherWakeUpTime).Value;
+
+        period.IsOverlapping(otherperiod).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsOverlapping_睡眠時間が重複していない場合_falseを返すこと()
+    {
+        var bedtime = new DateTime(2026, 6, 12, 23, 0, 0);
+        var wakeUpTime = new DateTime(2026, 6, 13, 7, 0, 0);
+        var period = SleepPeriod.Create(bedtime, wakeUpTime).Value;
+
+        var otherBedtime = new DateTime(2026, 6, 12, 19, 0, 0);
+        var otherWakeUpTime = new DateTime(2026, 6, 12, 23, 0, 0);
+        var otherperiod = SleepPeriod.Create(otherBedtime, otherWakeUpTime).Value;
+
+        period.IsOverlapping(otherperiod).Should().BeFalse();
+    }
 }

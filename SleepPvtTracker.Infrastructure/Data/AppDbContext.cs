@@ -23,6 +23,12 @@ public class AppDbContext : DbContext
             .HasConversion(id => id.Value, value => new SleepRecordId(value))
             .ValueGeneratedNever();
 
+            entity.OwnsOne(e => e.SleepPeriod, sleepPeriod =>
+            {
+                sleepPeriod.Property(p => p.Bedtime).HasColumnName("Bedtime");
+                sleepPeriod.Property(p => p.WakeUpTime).HasColumnName("WakeUpTime");
+            });
+
             entity.Property(e => e.Comments).HasMaxLength(100);
 
             entity.OwnsOne(e => e.Sleepiness, sleepiness =>

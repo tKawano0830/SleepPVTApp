@@ -18,4 +18,10 @@ public record SleepPeriod
 
         return Result<SleepPeriod>.Ok(new SleepPeriod(bedtime, wakeUpTime));
     }
+
+    //他のインスタンスと睡眠時間が重なっているか
+    public bool IsOverlapping(SleepPeriod other)
+    {
+        return this.Bedtime < other.WakeUpTime && other.Bedtime < this.WakeUpTime;
+    }
 }

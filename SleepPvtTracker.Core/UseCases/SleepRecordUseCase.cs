@@ -3,10 +3,11 @@ using SleepPvtTracker.Core.UseCases.Dtos;
 using SleepPvtTracker.Core.Domain.Entities;
 using SleepPvtTracker.Core.Domain.ValueObjects;
 using SleepPvtTracker.Core.Interfaces;
+using SleepPvtTracker.Core.Domain.DomainServices;
 
 namespace SleepPvtTracker.Core.UseCases;
 
-public class SleepRecordUseCase(ISleepRecordRepository repository) : ISleepRecordUseCase
+public class SleepRecordUseCase(ISleepRecordRepository repository, SleepRecordOverlapChecker overlapChecker) : ISleepRecordUseCase
 {
     public async Task<Result> CreateSleepRecordAsync(CreateSleepRecordDto dto, DateTime currentTime)
     {
@@ -24,6 +25,10 @@ public class SleepRecordUseCase(ISleepRecordRepository repository) : ISleepRecor
             var result = recordResult.Value.UpdateComments(dto.Comments);
             if (result.IsFailure) return Result.Fail(result.ErrorMessage);
         }
+
+        //重複ルールのチェックをドメインサービスクラスに依頼
+        var checkResult = await overlapChecker.CheckAsync(recordResult.Value);
+        if (checkResult.IsFailure) return Result.Fail(checkResult.ErrorMessage);
 
         await repository.AddRecordAsync(recordResult.Value);
         return Result.Ok();

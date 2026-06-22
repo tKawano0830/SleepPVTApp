@@ -38,11 +38,4 @@ public class SleepRecordRepository(AppDbContext context) : ISleepRecordRepositor
             .OrderByDescending(r => r.SleepPeriod.WakeUpTime)
             .ToListAsync();
     }
-
-    public async Task<IReadOnlyList<SleepRecord>> GetOverlappingRecordsAsync(SleepPeriod targetPeriod)
-    {
-        return await context.SleepRecords
-        .Where(r => r.SleepPeriod.Bedtime <= targetPeriod.WakeUpTime && targetPeriod.Bedtime <= r.SleepPeriod.WakeUpTime)
-        .ToListAsync();
-    }
 }

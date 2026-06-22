@@ -37,11 +37,4 @@ public interface ISleepRecordRepository
     /// </summary>
     /// <returns></returns>
     Task<IReadOnlyList<SleepRecord>> GetAllRecordsAsync();
-    /// <summary>
-    /// 睡眠時間が重複するレコードを取得
-    /// </summary>
-    /// <param name="targetPeriod"></param>
-    /// <returns></returns>
-    Task<IReadOnlyList<SleepRecord>> GetOverlappingRecordsAsync(SleepPeriod targetPeriod);
-
 }

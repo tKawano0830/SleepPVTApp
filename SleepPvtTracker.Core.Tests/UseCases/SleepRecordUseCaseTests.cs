@@ -9,19 +9,22 @@ using SleepPvtTracker.Core.Interfaces;
 using SleepPvtTracker.Core.UseCases;
 using SleepPvtTracker.Core.Domain.ValueObjects;
 using Xunit;
+using SleepPvtTracker.Core.Domain.DomainServices;
 
 namespace SleepPvtTracker.Core.Tests.UseCases;
 
-public class SleepRecordUseCaseTests
+public class SleepRecordUseCaseTest
 {
-    private readonly Mock<ISleepRecordRepository> _mockReoisitory;
-    private readonly SleepRecordUseCase _service;
+    private readonly Mock<ISleepRecordRepository> _mockRepository;
+    private readonly SleepRecordUseCase _useCase;
+    private readonly SleepRecordOverlapChecker _overlapChecker;
     private static readonly SleepRecordId DummyId = new SleepRecordId(Guid.Parse("11111111-1111-1111-1111-111111111111"));
 
-    public SleepRecordUseCaseTests()
+    public SleepRecordUseCaseTest()
     {
-        _mockReoisitory = new Mock<ISleepRecordRepository>();
-        _service = new SleepRecordUseCase(_mockReoisitory.Object);
+        _mockRepository = new Mock<ISleepRecordRepository>();
+        _overlapChecker = new SleepRecordOverlapChecker(_mockRepository.Object);
+        _useCase = new SleepRecordUseCase(_mockRepository.Object, _overlapChecker);
     }
 
     [Fact]
@@ -38,10 +41,12 @@ public class SleepRecordUseCaseTests
             Comments = "テスト"
         };
 
-        var result = await _service.CreateSleepRecordAsync(dto, currentTime);
+        _mockRepository.Setup(r => r.GetAllRecordsAsync()).ReturnsAsync(new List<SleepRecord>());
+
+        var result = await _useCase.CreateSleepRecordAsync(dto, currentTime);
 
         result.IsSuccess.Should().BeTrue();
-        _mockReoisitory.Verify(r => r.AddRecordAsync(It.IsAny<SleepRecord>()), Times.Once);
+        _mockRepository.Verify(r => r.AddRecordAsync(It.IsAny<SleepRecord>()), Times.Once);
     }
 
     [Fact]
@@ -58,10 +63,10 @@ public class SleepRecordUseCaseTests
             Comments = "テスト"
         };
 
-        var result = await _service.CreateSleepRecordAsync(dto, currentTime);
+        var result = await _useCase.CreateSleepRecordAsync(dto, currentTime);
 
         result.IsFailure.Should().BeTrue();
-        _mockReoisitory.Verify(r => r.AddRecordAsync(It.IsAny<SleepRecord>()), Times.Never);
+        _mockRepository.Verify(r => r.AddRecordAsync(It.IsAny<SleepRecord>()), Times.Never);
     }
 
     [Fact]
@@ -70,12 +75,12 @@ public class SleepRecordUseCaseTests
         var sleepRecordId = DummyId;
         var dummyRecord = CreateDummySleepRecord();
 
-        _mockReoisitory.Setup(r => r.GetRecordByIdAsync(sleepRecordId)).ReturnsAsync(dummyRecord);
+        _mockRepository.Setup(r => r.GetRecordByIdAsync(sleepRecordId)).ReturnsAsync(dummyRecord);
 
-        var result = await _service.DeleteSleepRecordAsync(sleepRecordId.Value);
+        var result = await _useCase.DeleteSleepRecordAsync(sleepRecordId.Value);
 
         result.IsSuccess.Should().BeTrue();
-        _mockReoisitory.Verify(r => r.DeleteRecordAsync(It.IsAny<SleepRecord>()), Times.Once);
+        _mockRepository.Verify(r => r.DeleteRecordAsync(It.IsAny<SleepRecord>()), Times.Once);
     }
 
     [Fact]
@@ -83,13 +88,13 @@ public class SleepRecordUseCaseTests
     {
         var sleepRecordId = DummyId;
 
-        _mockReoisitory.Setup(r => r.GetRecordByIdAsync(sleepRecordId)).ReturnsAsync((SleepRecord?)null);
+        _mockRepository.Setup(r => r.GetRecordByIdAsync(sleepRecordId)).ReturnsAsync((SleepRecord?)null);
 
-        var result = await _service.DeleteSleepRecordAsync(sleepRecordId.Value);
+        var result = await _useCase.DeleteSleepRecordAsync(sleepRecordId.Value);
 
         result.IsFailure.Should().BeTrue();
         result.ErrorMessage.Should().Contain("削除対象");
-        _mockReoisitory.Verify(repo => repo.DeleteRecordAsync(It.IsAny<SleepRecord>()), Times.Never);
+        _mockRepository.Verify(repo => repo.DeleteRecordAsync(It.IsAny<SleepRecord>()), Times.Never);
     }
 
     [Fact]
@@ -105,12 +110,12 @@ public class SleepRecordUseCaseTests
             Trials = new List<PvtTrialDto> { new PvtTrialDto { ChangedAt = 1000, ClickedAt = 1250 } }
         };
 
-        _mockReoisitory.Setup(r => r.GetRecordByIdAsync(sleepRecordId)).ReturnsAsync(dummyRecord);
+        _mockRepository.Setup(r => r.GetRecordByIdAsync(sleepRecordId)).ReturnsAsync(dummyRecord);
 
-        var result = await _service.SubmitPvtAsync(dto);
+        var result = await _useCase.SubmitPvtAsync(dto);
 
         result.IsSuccess.Should().BeTrue();
-        _mockReoisitory.Verify(r => r.UpdateRecordAsync(It.IsAny<SleepRecord>()), Times.Once);
+        _mockRepository.Verify(r => r.UpdateRecordAsync(It.IsAny<SleepRecord>()), Times.Once);
     }
 
     [Fact]
@@ -126,13 +131,13 @@ public class SleepRecordUseCaseTests
             Trials = new List<PvtTrialDto> { new PvtTrialDto { ChangedAt = 1000, ClickedAt = 1250 } }
         };
 
-        _mockReoisitory.Setup(r => r.GetRecordByIdAsync(sleepRecordId)).ReturnsAsync((SleepRecord?)null);
+        _mockRepository.Setup(r => r.GetRecordByIdAsync(sleepRecordId)).ReturnsAsync((SleepRecord?)null);
 
-        var result = await _service.SubmitPvtAsync(dto);
+        var result = await _useCase.SubmitPvtAsync(dto);
 
         result.IsFailure.Should().BeTrue();
         result.ErrorMessage.Should().Contain("更新対象");
-        _mockReoisitory.Verify(repo => repo.UpdateRecordAsync(It.IsAny<SleepRecord>()), Times.Never);
+        _mockRepository.Verify(repo => repo.UpdateRecordAsync(It.IsAny<SleepRecord>()), Times.Never);
     }
 
     [Fact]
@@ -143,28 +148,28 @@ public class SleepRecordUseCaseTests
             CreateDummySleepRecord(),
             CreateDummySleepRecord()
         };
-        _mockReoisitory.Setup(r => r.GetAllRecordsAsync()).ReturnsAsync(expectedRecords);
+        _mockRepository.Setup(r => r.GetAllRecordsAsync()).ReturnsAsync(expectedRecords);
 
-        var result = await _service.GetAllSleepRecordsAsync();
+        var result = await _useCase.GetAllSleepRecordsAsync();
 
         result.Should().NotBeNull();
         result.Should().HaveCount(2);
         result.Should().BeEquivalentTo(expectedRecords);
 
-        _mockReoisitory.Verify(r => r.GetAllRecordsAsync(), Times.Once);
+        _mockRepository.Verify(r => r.GetAllRecordsAsync(), Times.Once);
     }
 
     [Fact]
     public async Task GetAllSleepRecordAsync_睡眠記録データが存在しない場合_空のリストを返すこと()
     {
-        _mockReoisitory.Setup(r => r.GetAllRecordsAsync()).ReturnsAsync(new List<SleepRecord>());
+        _mockRepository.Setup(r => r.GetAllRecordsAsync()).ReturnsAsync(new List<SleepRecord>());
 
-        var result = await _service.GetAllSleepRecordsAsync();
+        var result = await _useCase.GetAllSleepRecordsAsync();
 
         result.Should().NotBeNull();
         result.Should().BeEmpty();
 
-        _mockReoisitory.Verify(r => r.GetAllRecordsAsync(), Times.Once);
+        _mockRepository.Verify(r => r.GetAllRecordsAsync(), Times.Once);
     }
 
     private static SleepRecord CreateDummySleepRecord()

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SleepPvtTracker.Core.Domain.DomainServices;
 using SleepPvtTracker.Core.Interfaces;
 using SleepPvtTracker.Core.UseCases;
 using SleepPvtTracker.Infrastructure.Data;
@@ -15,6 +16,7 @@ builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
 
 builder.Services.AddScoped<ISleepRecordRepository, SleepRecordRepository>();
 builder.Services.AddScoped<ISleepRecordUseCase, SleepRecordUseCase>();
+builder.Services.AddScoped<SleepRecordOverlapChecker>();
 
 var app = builder.Build();
 
