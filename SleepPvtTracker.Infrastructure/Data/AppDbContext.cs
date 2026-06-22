@@ -56,31 +56,6 @@ public class AppDbContext : DbContext
             });
         });
 
-        var record1Id = new SleepRecordId(Guid.Parse("11111111-1111-1111-1111-111111111111"));
-        var record2Id = new SleepRecordId(Guid.Parse("22222222-2222-2222-2222-222222222222"));
-        var baseDate = new DateTime(2026, 6, 13, 7, 0, 0);
-
-        modelBuilder.Entity<SleepRecord>().HasData(
-            new
-            {
-                Id = record1Id,
-                Bedtime = baseDate.AddDays(-2).AddHours(-8),
-                WakeUpTime = baseDate.AddDays(-2),
-                Comments = "よく眠れた"
-            },
-            new
-            {
-                Id = record2Id,
-                Bedtime = baseDate.AddDays(-1).AddHours(-6),
-                WakeUpTime = baseDate.AddDays(-1),
-                Comments = string.Empty
-            }
-        );
-
-        modelBuilder.Entity<SleepRecord>().OwnsOne(e => e.Sleepiness).HasData(
-            new { SleepRecordId = record1Id, Level = 1 },
-            new { SleepRecordId = record2Id, Level = 7 }
-        );
     }
 
 }
