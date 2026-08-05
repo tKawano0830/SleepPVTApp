@@ -11,21 +11,18 @@ using SleepPvtTracker.Infrastructure.Data;
 namespace SleepPvtTracker.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260618063540_InitialCreate")]
+    [Migration("20260805131424_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
 
-            modelBuilder.Entity("SleepPvtTracker.Core.Entities.SleepRecord", b =>
+            modelBuilder.Entity("SleepPvtTracker.Core.Domain.Entities.SleepRecord", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("Bedtime")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Comments")
@@ -33,33 +30,35 @@ namespace SleepPvtTracker.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("WakeUpTime")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
 
                     b.ToTable("SleepRecords");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Bedtime = new DateTime(2026, 6, 10, 23, 0, 0, 0, DateTimeKind.Unspecified),
-                            Comments = "よく眠れた",
-                            WakeUpTime = new DateTime(2026, 6, 11, 7, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Bedtime = new DateTime(2026, 6, 12, 1, 0, 0, 0, DateTimeKind.Unspecified),
-                            Comments = "",
-                            WakeUpTime = new DateTime(2026, 6, 12, 7, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
-            modelBuilder.Entity("SleepPvtTracker.Core.Entities.SleepRecord", b =>
+            modelBuilder.Entity("SleepPvtTracker.Core.Domain.Entities.SleepRecord", b =>
                 {
-                    b.OwnsOne("SleepPvtTracker.Core.ValueObjects.PvtResult", "PvtResult", b1 =>
+                    b.OwnsOne("SleepPeriod", "SleepPeriod", b1 =>
+                        {
+                            b1.Property<Guid>("SleepRecordId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<DateTime>("Bedtime")
+                                .HasColumnType("TEXT")
+                                .HasColumnName("Bedtime");
+
+                            b1.Property<DateTime>("WakeUpTime")
+                                .HasColumnType("TEXT")
+                                .HasColumnName("WakeUpTime");
+
+                            b1.HasKey("SleepRecordId");
+
+                            b1.ToTable("SleepRecords");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SleepRecordId");
+                        });
+
+                    b.OwnsOne("SleepPvtTracker.Core.Domain.ValueObjects.PvtResult", "PvtResult", b1 =>
                         {
                             b1.Property<Guid>("SleepRecordId")
                                 .HasColumnType("TEXT");
@@ -89,7 +88,7 @@ namespace SleepPvtTracker.Infrastructure.Migrations
                                 .HasForeignKey("SleepRecordId");
                         });
 
-                    b.OwnsOne("SleepPvtTracker.Core.ValueObjects.SubjectiveSleepiness", "Sleepiness", b1 =>
+                    b.OwnsOne("SleepPvtTracker.Core.Domain.ValueObjects.SubjectiveSleepiness", "Sleepiness", b1 =>
                         {
                             b1.Property<Guid>("SleepRecordId")
                                 .HasColumnType("TEXT");
@@ -104,21 +103,12 @@ namespace SleepPvtTracker.Infrastructure.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("SleepRecordId");
-
-                            b1.HasData(
-                                new
-                                {
-                                    SleepRecordId = new Guid("11111111-1111-1111-1111-111111111111"),
-                                    Level = 1
-                                },
-                                new
-                                {
-                                    SleepRecordId = new Guid("22222222-2222-2222-2222-222222222222"),
-                                    Level = 7
-                                });
                         });
 
                     b.Navigation("PvtResult");
+
+                    b.Navigation("SleepPeriod")
+                        .IsRequired();
 
                     b.Navigation("Sleepiness")
                         .IsRequired();

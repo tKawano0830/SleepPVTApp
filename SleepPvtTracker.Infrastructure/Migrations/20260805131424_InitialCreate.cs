@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace SleepPvtTracker.Infrastructure.Migrations
 {
     /// <inheritdoc />
@@ -30,15 +28,6 @@ namespace SleepPvtTracker.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SleepRecords", x => x.Id);
-                });
-
-            migrationBuilder.InsertData(
-                table: "SleepRecords",
-                columns: new[] { "Id", "Bedtime", "Comments", "WakeUpTime", "SleepinessLevel" },
-                values: new object[,]
-                {
-                    { new Guid("11111111-1111-1111-1111-111111111111"), new DateTime(2026, 6, 10, 23, 0, 0, 0, DateTimeKind.Unspecified), "よく眠れた", new DateTime(2026, 6, 11, 7, 0, 0, 0, DateTimeKind.Unspecified), 1 },
-                    { new Guid("22222222-2222-2222-2222-222222222222"), new DateTime(2026, 6, 12, 1, 0, 0, 0, DateTimeKind.Unspecified), "", new DateTime(2026, 6, 12, 7, 0, 0, 0, DateTimeKind.Unspecified), 7 }
                 });
         }
 
